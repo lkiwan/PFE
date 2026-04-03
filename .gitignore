@@ -1,0 +1,15 @@
+.env
+__pycache__/
+*.pyc
+.claude/
+error.log
+advisory_report.json
+schema_dump.txt
+dump_schema.py
+*.log
+.gemini/
+.agent/
+.agents/
+node_modules/
+dist/
+build/
