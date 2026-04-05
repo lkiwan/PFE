@@ -1,0 +1,67 @@
+{
+  "symbol": "ATW",
+  "scrape_timestamp": "2026-04-05T17:48:05.648078Z",
+  "identity": {
+    "full_name": null,
+    "ticker": "ATW",
+    "isin": null,
+    "exchange": null,
+    "sector": null,
+    "currency": null,
+    "url_code": "ATTIJARIWAFA-BANK-SA-41148801"
+  },
+  "price_performance": {
+    "last_price": 681.2,
+    "last_date": null,
+    "change_1d": null,
+    "change_1w": null,
+    "change_1m": null,
+    "change_3m": null,
+    "change_6m": null,
+    "change_ytd": null,
+    "change_1y": null,
+    "volume": null,
+    "high_52w": null,
+    "low_52w": null
+  },
+  "valuation": {
+    "market_cap": null,
+    "enterprise_value": null,
+    "free_float_pct": null,
+    "pe_ratio": null,
+    "pe_ratio_next_year": null,
+    "ev_sales": null,
+    "dividend_yield": null,
+    "price_to_book": null,
+    "ev_ebitda": null,
+    "pe_ratio_hist": {},
+    "pbr_hist": {},
+    "peg_hist": {},
+    "ev_revenue_hist": {},
+    "ev_ebitda_hist": {},
+    "dividend_per_share_hist": {},
+    "eps_hist": {},
+    "num_shares": null
+  },
+  "financials": {
+    "revenues": {},
+    "operating_income": {},
+    "net_income": {
+      "latest": null
+    },
+    "eps": {},
+    "ebitda": {},
+    "ebitda_margin": {},
+    "net_margin": {},
+    "roe": {},
+    "roa": {},
+    "net_debt": {},
+    "free_cash_flow": {}
+  },
+  "consensus": {
+    "consensus": null,
+    "num_analysts": null,
+    "target_price_avg": null,
+    "upside_pct": null
+  }
+}

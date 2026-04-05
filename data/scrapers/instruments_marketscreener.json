@@ -1,0 +1,15 @@
+{
+  "instruments": [
+    {"symbol": "IAM", "name": "ITISSALAT AL-MAGHRIB (Maroc Telecom)", "url_code": "ITISSALAT-AL-MAGHRIB-IAM--1408717"},
+    {"symbol": "CIH", "name": "CIH BANK", "url_code": "CREDIT-IMMOBILIER-ET-HOTE-6500723"},
+    {"symbol": "ATW", "name": "ATTIJARIWAFA BANK", "url_code": "ATTIJARIWAFA-BANK-SA-41148801"},
+    {"symbol": "BCP", "name": "BANQUE CENTRALE POPULAIRE", "url_code": "BANQUE-CENTRALE-POPULAIRE-6498628"},
+    {"symbol": "BOA", "name": "BANK OF AFRICA", "url_code": "BANK-OF-AFRICA-105524978"},
+    {"symbol": "CSR", "name": "COSUMAR", "url_code": "COSUMAR-SA-41148813"},
+    {"symbol": "MNG", "name": "MANAGEM", "url_code": "MANAGEM-S-A-1408721"},
+    {"symbol": "MLE", "name": "MAROC LEASING", "url_code": "MAROC-LEASING-S-A-1408716"},
+    {"symbol": "ADH", "name": "DOUJA PROM ADDOHA", "url_code": "DOUJA-PROMOTION-GROUPE-AD-1408674"},
+    {"symbol": "TGC", "name": "TGCC S.A", "url_code": "TRAVAUX-GENERAUX-DE-CONST-129765784"},
+    {"symbol": "AKT", "name": "AKDITAL", "url_code": "AKDITAL-S-A-147975645"}
+  ]
+}

@@ -1,0 +1,130 @@
+File Tree: PFE.0
+Generated on: 4/5/2026, 4:01:23 PM
+Root path: c:\Users\arhou\OneDrive\Bureau\PFE.0
+
+# PFE Trading System — IAM (Itissalat Al-Maghrib / Maroc Telecom)
+# A full quantitative stock advisory system for the Casablanca Stock Exchange.
+# Combines web scraping, fundamental valuation (5 models), multi-factor scoring,
+# whale detection (institutional volume spikes), backtesting, AI-powered advisory
+# (Agno + Groq LLM), and a PostgreSQL relational database.
+
+────────────────────────────────────────────────────────────────────────────────
+
+├── 📁 IAM/                                                     # Raw historical price data for IAM stock (CSV files from Investing.com)
+│   ├── 📄 IAM - Données Historiques dayli P.1.csv              # Daily OHLCV price data Part 1 (French format: Date, Dernier, Ouv., Plus Haut, Plus Bas, Vol., Variation %)
+│   ├── 📄 IAM - Données Historiques dayli P.2.csv              # Daily OHLCV price data Part 2 — merged with P.1 during loading to form the full history
+│   ├── 📄 IAM Stock Price History monthly.csv                  # Monthly aggregated price history for IAM
+│   └── 📄 IAM Stock Price History weekly.csv                   # Weekly aggregated price history for IAM
+│
+├── 📁 agents/                                                  # AI Agent layer — Agno framework + Groq LLM integration
+│   ├── 🐍 __init__.py                                         # Package init (docstring only)
+│   ├── 🐍 advisor_agent.py                                    # Builds the Agno AI Agent (Groq llama-3.3-70b) with tool-calling capability; CLI entry point with --test flag to run a live advisory query
+│   └── 🐍 tools.py                                            # Defines get_iam_stock_advisory_context() — the Agno tool that returns a JSON payload with stock fundamentals, technicals, whale data, health scores, and risk assessment for the AI to analyze
+│
+├── 📁 backtest/                                                # Backtesting engine — validates strategies against historical price data
+│   ├── 📁 reports/                                             # Generated HTML reports (self-contained with embedded Plotly charts)
+│   │   ├── 🌐 IAM_backtest_report.html                        # Fundamental strategy backtest report: equity curve, drawdown, signal log, sensitivity heatmap, factor scores per year
+│   │   ├── 🌐 IAM_hybrid_whale_report.html                    # Hybrid strategy report: whale volume detection filtered by fundamental composite score
+│   │   └── 🌐 IAM_whale_strategy_report.html                  # Pure whale strategy report: institutional volume spike detection with price/volume charts and trade log
+│   ├── 🐍 __init__.py                                         # Package init — documents quick-start usage for the backtest module
+│   ├── 🐍 data_loader.py                                      # Loads IAM CSV files (P.1 + P.2), parses French number formats ("92,15" -> 92.15), volume ("2,01M" -> 2010000), merges/deduplicates/sorts into a clean pandas DataFrame with OHLCV columns
+│   ├── 🐍 engine.py                                           # BacktestEngine: paper trading portfolio simulator — executes BUY/SELL signals, handles commissions (0.3% CSE standard), dividends, no short selling; tracks daily equity curve vs buy-and-hold benchmark
+│   ├── 🐍 metrics.py                                          # Computes all performance statistics: Total Return, CAGR, Sharpe Ratio, Sortino Ratio, Max Drawdown, Calmar Ratio, Win Rate, Profit Factor, commission totals, dividend income — all vs buy-and-hold
+│   ├── 🐍 parameter_sensitivity.py                            # Sweeps min_upside_pct x min_composite_score thresholds across a grid (5-25% x 45-70), re-runs the engine for each combo, outputs a Sharpe ratio leaderboard and 2D heatmap matrix
+│   ├── 🐍 report.py                                           # Generates self-contained HTML reports with Plotly: equity curve chart, drawdown chart, factor scores bar chart, sensitivity heatmap, signal/trade log table, metric scorecard
+│   ├── 🐍 run_backtest.py                                     # CLI entry point for the fundamental strategy backtest — orchestrates: load data -> generate signals -> simulate portfolio -> compute metrics -> sensitivity sweep -> HTML report
+│   ├── 🐍 run_hybrid_backtest.py                              # CLI entry point for the hybrid (whale + fundamental) strategy backtest — runs HybridWhaleStrategy then simulates and reports
+│   ├── 🐍 run_whale_backtest.py                               # CLI entry point for the pure whale strategy backtest — runs WhaleStrategy, simulates daily portfolio, computes metrics, generates HTML report with volume spike visualization
+│   └── 🐍 signal_generator.py                                 # SignalGenerator: for each fiscal year, masks future data (no look-ahead bias), runs all 5 valuation models + ScoringEngine + RecommendationEngine at the historical price, outputs BUY/HOLD/SELL with upside% and composite score
+│
+├── 📁 core/                                                    # Core data loading and normalization utilities
+│   ├── 📁 market_data/                                         # Placeholder module for market data handling (stub)
+│   │   └── 🐍 __init__.py                                     # Exports MarketDataHandler (not yet implemented)
+│   ├── 📁 portfolio/                                           # Placeholder module for portfolio management (stub)
+│   │   └── 🐍 __init__.py                                     # Exports PortfolioManager (not yet implemented)
+│   ├── 📁 trading/                                             # Placeholder module for trading execution (stub)
+│   │   └── 🐍 __init__.py                                     # Exports TradingEngine (not yet implemented)
+│   ├── 🐍 data_loader.py                                      # Loads scraped stock data from JSON (testing/stock_data.json) — provides load_stock_data() and load_all_stocks() with multi-path fallback
+│   └── 🐍 data_normalizer.py                                  # Normalizes scraped MarketScreener data: converts full MAD to millions, reconstructs mixed-unit fields (net income from margin*revenue, net debt, FCF, CapEx, OCF), derives EPS, BVPS, interest expense, net debt/EBITDA
+│
+├── 📁 data/                                                    # Data storage directories (empty placeholders kept by .gitkeep)
+│   ├── 📁 historical/                                          # For storing historical market data
+│   │   └── ⚙️ .gitkeep
+│   ├── 📁 processed/                                           # For storing processed/cleaned datasets
+│   │   └── ⚙️ .gitkeep
+│   └── 📁 raw/                                                 # For storing raw scraped data
+│       └── ⚙️ .gitkeep
+│
+├── 📁 db/                                                      # Database setup and migration scripts
+│   └── 🐍 setup.py                                            # Creates the PostgreSQL schema (md.*): md.historical_prices, md.news_articles, md.predictions tables — drops and recreates for a clean slate
+│
+├── 📁 logs/                                                    # Application log files directory (empty placeholder)
+│   └── ⚙️ .gitkeep
+│
+├── 📁 models/                                                  # Valuation models — 5 different approaches to estimate IAM intrinsic value
+│   ├── 📁 trained/                                             # Directory for saved ML model weights (empty placeholder)
+│   │   └── ⚙️ .gitkeep
+│   ├── 🐍 __init__.py                                         # Package init (empty exports)
+│   ├── 🐍 base_model.py                                       # Abstract base class BaseValuationModel: defines calculate() interface, ValuationResult dataclass (intrinsic_value, low/high range, upside%, confidence), helper methods for accessing financial data
+│   ├── 🐍 dcf_model.py                                        # Discounted Cash Flow model: computes WACC (CAPM), projects 5 years of FCF, calculates terminal value via Gordon Growth, discounts to present, subtracts net debt — includes bull/bear scenario sensitivity
+│   ├── 🐍 ddm_model.py                                        # Dividend Discount Model: 3-stage DDM (explicit forecasts -> transition with decaying growth -> terminal value via Gordon Growth) — suited for IAM's ~70% payout ratio and ~4.5% yield
+│   ├── 🐍 graham_model.py                                     # Benjamin Graham valuation: Graham Number (sqrt(22.5 * EPS * BVPS)), Graham Growth Formula (EPS * (8.5+2g) * 4.4/Y), and NCAV (Net Current Asset Value) — conservative margin-of-safety floor
+│   ├── 🐍 monte_carlo.py                                      # Monte Carlo simulation: runs 10,000 DCF iterations sampling revenue growth, EBITDA margin, WACC, terminal growth, CapEx from probability distributions — outputs median, P10/P90, and probability of being above current price
+│   └── 🐍 relative_valuation.py                               # Relative/multiples valuation: compares P/E, EV/EBITDA, P/B, EV/Revenue, FCF yield against IAM's own historical medians and sector benchmarks (60/40 blend) — weighted composite fair value
+│
+├── 📁 scrapers/                                                # Web scrapers for collecting financial data from external sources
+│   ├── 🐍 __init__.py                                         # Package init (docstring only)
+│   ├── 🐍 base_scraper.py                                     # BaseScraper: parent class handling DB connections (SQLAlchemy/PostgreSQL), aiohttp for lightweight HTTP, Selenium/Chrome for JS-heavy pages — manages SSL, cleanup, context manager
+│   ├── 🐍 financial_reports.py                                 # AMMCReportExtractor: extracts financial metrics from AMMC PDF reports (Bilan, CPR) using pdfplumber + regex — parses Moroccan financial statement formats (total actif, capitaux propres, RNPG, EBITDA, etc.)
+│   ├── 🐍 market_data_scraper.py                              # MasiScraper (Selenium): scrapes MASI index data from Investing.com; Medias24Scraper (aiohttp): scrapes historical price data from Medias24.com — both handle French number formats
+│   └── 🐍 order_book_scraper.py                               # OrderBookScraper (Selenium): scrapes Level 2 bid/ask order book from Medias24 — extracts bid/ask prices, quantities, and order counts for institutional flow analysis
+│
+├── 📁 strategies/                                              # Trading strategies and decision engines
+│   ├── 📁 mean_reversion/                                      # Placeholder for mean reversion strategy (empty)
+│   │   └── 🐍 __init__.py
+│   ├── 📁 ml_based/                                            # Placeholder for machine learning-based strategy (empty)
+│   │   └── 🐍 __init__.py
+│   ├── 📁 momentum/                                            # Placeholder for momentum strategy (empty)
+│   │   └── 🐍 __init__.py
+│   ├── 🐍 __init__.py                                         # Package init (empty exports)
+│   ├── 🐍 hybrid_whale_strategy.py                            # HybridWhaleStrategy: combines whale volume spike detection (technical) with fundamental composite score filter — only allows BUY if whale is buying AND company score >= threshold (default 50)
+│   ├── 🐍 news_sentiment.py                                   # NewsSentimentAnalyzer: keyword-based sentiment analysis on news headlines — scores articles using finance-specific positive/negative word lists, detects event categories (earnings, M&A, regulatory), outputs sentiment score 0-100
+│   ├── 🐍 recommendation_engine.py                            # RecommendationEngine: aggregates 5 valuation model results (weighted average), combines with composite factor score to produce final BUY/HOLD/SELL recommendation with confidence level and risk assessment
+│   ├── 🐍 scoring_engine.py                                   # ScoringEngine: multi-factor scoring across 5 dimensions (Value, Quality, Growth, Dividend, Safety) each scored 0-100, combined into weighted composite — uses linear interpolation against configurable thresholds
+│   └── 🐍 whale_strategy.py                                   # WhaleStrategy: detects institutional volume spikes (volume >= 2.5x 20-day MA), confirms direction via intraday price change, applies SMA-50 trend filter, stop-loss (8%) and take-profit (25%) — generates daily BUY/SELL/HOLD signals
+│
+├── 📁 testing/                                                 # Scraping tools and scraped data used for testing and development
+│   ├── 📁 testing/                                             # Output directory for scraped financial data
+│   │   ├── 📄 stock_data.csv                                  # Flattened CSV export of all scraped IAM financial data
+│   │   └── ⚙️ stock_data.json                                 # Full nested JSON with IAM identity, price performance, valuation multiples, financials (income statement, balance sheet, ratios), consensus estimates, and news — primary data source for valuation models
+│   ├── 📝 README.md                                           # Documentation for the testing/scraping module
+│   ├── 🐍 __init__.py                                         # Package init (empty)
+│   ├── 🐍 config.py                                           # Configuration for MarketScreener scraper: stock URL codes, sub-page paths (finances, consensus, valuation, calendar, company, sector), HTTP request settings, output file paths
+│   ├── 📄 news_articles.csv                                   # Scraped news articles for IAM from MarketScreener (date, title, source, URL, full article content)
+│   ├── 📄 requirements.txt                                    # Python dependencies for the scraping module
+│   ├── 🐍 run_scraper.py                                      # CLI entry point for the news scraper — fetches IAM articles with full content from MarketScreener, exports to news_articles.csv
+│   └── 🐍 scraper.py                                          # Main async MarketScreener scraper (aiohttp + BeautifulSoup): scrapes financial statements, valuation multiples, consensus estimates, price history, and news articles — exports to CSV and JSON
+│
+├── 📁 tests/                                                   # Unit and integration test directories (empty placeholders)
+│   ├── 📁 integration/
+│   │   └── 🐍 __init__.py
+│   └── 📁 unit/
+│       └── 🐍 __init__.py
+│
+├── 📁 utils/                                                   # Shared utility functions and constants
+│   ├── 🐍 __init__.py                                         # Package init (empty exports)
+│   ├── 🐍 financial_constants.py                              # Morocco-specific constants: risk-free rate (3.5% BAM), equity risk premium (6.5%), IAM beta (0.70), tax rate (31%), terminal growth (2.5%), sector benchmarks, scoring thresholds, model weights (DCF 30%, Relative 25%, DDM 20%, Monte Carlo 15%, Graham 10%), factor weights
+│   └── 🐍 report_generator.py                                 # ReportGenerator: produces the final advisory report in JSON and formatted text — includes stock info, recommendation, fair value range, factor scores bar chart, model breakdown, risk assessment, news sentiment, key metrics summary
+│
+├── ⚙️ .gitignore                                              # Git ignore rules: .env, __pycache__, *.pyc, .claude/, error.log, schema_dump.txt, dump_schema.py, node_modules/, dist/, build/
+├── 📝 1.md                                                     # Project structure documentation / planning notes
+├── 📝 Database_Schema.md                                       # PostgreSQL database schema documentation — describes all schemas (ref, md, ai, logs) and their tables, columns, relationships
+├── 📝 PFE_Codebase_Structure.md                                # Detailed codebase architecture documentation
+├── 📝 PFE_Complete_Documentation.md                            # Complete project documentation (overview, setup, usage, architecture)
+├── 📄 PROJECT_SUMMARY.txt                                      # High-level project summary
+├── 📝 how.md                                                   # How-to guide / methodology notes
+├── 🐍 dump_schema.py                                          # Utility script: connects to PostgreSQL PFE database, iterates all schemas/tables/columns, dumps the full database structure to schema_dump.txt
+└── 🐍 run_autopilot.py                                        # Master autopilot entry point: connects to PostgreSQL, retrieves last AI prediction (memory), calls get_iam_stock_advisory_context() for live data, runs Agno Agent (Groq llama-3.3-70b) to generate advisory report, parses RECOMMENDATION/CONFIDENCE/TIMEFRAME, inserts into ai.predictions table
+
+────────────────────────────────────────────────────────────────────────────────
+Generated by FileTree Pro Extension

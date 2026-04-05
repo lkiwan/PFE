@@ -38,17 +38,44 @@ def get_last_prediction(conn, instrument_id):
                 f"Your previous report was: {res[4][:300]}...")
     return "This is your first time analyzing this stock. No previous memory."
 
+import subprocess
+
+def run_data_sync(symbol="IAM"):
+    """Runs the Casablanca Bourse scraper for the target symbol."""
+    print(f"🔄 [0/4] Synchronizing Market Data for {symbol}...")
+    try:
+        # Construct path to scraper
+        scraper_path = _ROOT / "scrapers" / "bourse_casa_scraper.py"
+        
+        # Run as a subprocess to keep it clean and isolated
+        result = subprocess.run(
+            [sys.executable, str(scraper_path), "--symbol", symbol],
+            capture_output=True, text=True, check=True
+        )
+        # print(result.stdout) # Optional: print scraper output
+        print(f"   [+] Market data for {symbol} is now up to date.")
+    except subprocess.CalledProcessError as e:
+        print(f"   [!] WARNING: Market data sync failed for {symbol}: {e.stderr}")
+    except Exception as e:
+        print(f"   [!] WARNING: Unexpected error during sync: {e}")
+
 def run_master_autopilot():
     print("🚀 [1/4] Connecting to Native Relational Database...")
+    # Target Symbol (can be parameterized later)
+    target_symbol = "IAM"
+    
+    # Step 0: Sync Data
+    run_data_sync(target_symbol)
+    
     with engine.begin() as conn:
-        instrument_id = get_instrument_id(conn, "IAM")
+        instrument_id = get_instrument_id(conn, target_symbol)
         if not instrument_id:
-            print("❌ ERROR: Could not find 'IAM' in ref.instruments table.")
+            print(f"❌ ERROR: Could not find '{target_symbol}' in ref.instruments table.")
             # For testing fallback:
             instrument_id = 1
             print(f"⚠️ Falling back to dummy instrument_id = {instrument_id} for testing.")
         else:
-            print(f"   [+] Successfully linked symbol 'IAM' to instrument_id = {instrument_id}")
+            print(f"   [+] Successfully linked symbol '{target_symbol}' to instrument_id = {instrument_id}")
 
         print("\n🧠 [2/4] Generating AI Context & Relational Memory...")
         memory_context = get_last_prediction(conn, instrument_id)
