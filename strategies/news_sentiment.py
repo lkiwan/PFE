@@ -78,9 +78,46 @@ EVENT_CATEGORIES = {
 class NewsSentimentAnalyzer:
     """Analyze news articles for sentiment and events."""
 
-    def __init__(self, news_data: dict):
+    def __init__(self, news_data: dict = None):
+        if news_data is None:
+            news_data = {}
         self.articles = news_data.get("articles", [])
         self.total_count = news_data.get("total_count", 0)
+    
+    def analyze_sentiment(self, news_df) -> Dict[str, Any]:
+        """Analyze sentiment from a pandas DataFrame of news articles.
+        
+        Expected columns: Title, Date (others are optional)
+        """
+        if news_df is None or len(news_df) == 0:
+            return {
+                "overall_sentiment": "NEUTRAL",
+                "sentiment_score": 50,
+                "total_articles": 0
+            }
+        
+        # Convert DataFrame to article list
+        articles = []
+        for _, row in news_df.iterrows():
+            articles.append({
+                "title": row.get('Title', ''),
+                "date": row.get('Date', ''),
+                "snippet": row.get('Full_Content', '') or ''
+            })
+        
+        # Set articles and run analysis
+        self.articles = articles
+        self.total_count = len(articles)
+        result = self.analyze()
+        
+        return {
+            "overall_sentiment": result["sentiment_label"],
+            "sentiment_score": result["sentiment_score"],
+            "total_articles": result["total_articles"],
+            "positive_count": result["positive_count"],
+            "negative_count": result["negative_count"],
+            "events_detected": result["events_detected"]
+        }
 
     def analyze(self) -> Dict[str, Any]:
         """Run full sentiment analysis on news articles."""
