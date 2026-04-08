@@ -1,5 +1,5 @@
 ╔════════════════════════════════════════════════════════════════════════════╗
-║                  SCRAPER FILES NEEDED FOR AI TO PREDICT                   ║
+║                  SCRAPER FILES NEEDED FOR AI TO PREDICT                    ║
 ╚════════════════════════════════════════════════════════════════════════════╝
 
 
@@ -9,7 +9,8 @@
 
 
   SCRAPER #1: FINANCIAL DATA
-  ═════════════════════════════════════════════════════════════════════════
+  ═══════════════════════════════════════════════════════════════════════
+  
   
   File: scrapers/marketscreener_scraper_v2.py
   Best:  core/data_merger.py (combines scrapers, 100% quality)
@@ -109,7 +110,7 @@
 
 
   Step 2: GET DAILY PRICES (Scraper #2)
-  ───────────────────────
+  ──────────────────────
   
   Command:  python scrapers/bourse_casa_scraper.py --symbol IAM
   Creates:  data/historical/IAM_bourse_casa_full.csv
