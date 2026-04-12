@@ -1,15 +1,404 @@
 {
   "instruments": [
-    {"symbol": "IAM", "name": "ITISSALAT AL-MAGHRIB (Maroc Telecom)", "url_code": "ITISSALAT-AL-MAGHRIB-IAM--1408717"},
-    {"symbol": "CIH", "name": "CIH BANK", "url_code": "CREDIT-IMMOBILIER-ET-HOTE-6500723"},
-    {"symbol": "ATW", "name": "ATTIJARIWAFA BANK", "url_code": "ATTIJARIWAFA-BANK-SA-41148801"},
-    {"symbol": "BCP", "name": "BANQUE CENTRALE POPULAIRE", "url_code": "BANQUE-CENTRALE-POPULAIRE-6498628"},
-    {"symbol": "BOA", "name": "BANK OF AFRICA", "url_code": "BANK-OF-AFRICA-105524978"},
-    {"symbol": "CSR", "name": "COSUMAR", "url_code": "COSUMAR-SA-41148813"},
-    {"symbol": "MNG", "name": "MANAGEM", "url_code": "MANAGEM-S-A-1408721"},
-    {"symbol": "MLE", "name": "MAROC LEASING", "url_code": "MAROC-LEASING-S-A-1408716"},
-    {"symbol": "ADH", "name": "DOUJA PROM ADDOHA", "url_code": "DOUJA-PROMOTION-GROUPE-AD-1408674"},
-    {"symbol": "TGC", "name": "TGCC S.A", "url_code": "TRAVAUX-GENERAUX-DE-CONST-129765784"},
-    {"symbol": "AKT", "name": "AKDITAL", "url_code": "AKDITAL-S-A-147975645"}
+    {
+      "symbol": "ATW",
+      "name": "ATTIJARIWAFA BANK",
+      "url_code": "ATTIJARIWAFA-BANK-SA-41148801"
+    },
+    {
+      "symbol": "BCP",
+      "name": "BANQUE CENTRALE POPULAIRE",
+      "url_code": "BANQUE-CENTRALE-POPULAIRE-6498628"
+    },
+    {
+      "symbol": "CIH",
+      "name": "CIH BANK",
+      "url_code": "CREDIT-IMMOBILIER-ET-HOTE-6500723"
+    },
+    {
+      "symbol": "IAM",
+      "name": "ITISSALAT AL-MAGHRIB (Maroc Telecom)",
+      "url_code": "ITISSALAT-AL-MAGHRIB-IAM--1408717"
+    },
+    {
+      "symbol": "BOA",
+      "name": "BANK OF AFRICA",
+      "url_code": "BANK-OF-AFRICA-105524978"
+    },
+    {
+      "symbol": "ADH",
+      "name": "DOUJA PROM ADDOHA",
+      "url_code": "DOUJA-PROMOTION-GROUPE-AD-1408674"
+    },
+    {
+      "symbol": "ADI",
+      "name": "ALLIANCES",
+      "url_code": null
+    },
+    {
+      "symbol": "AFM",
+      "name": "AFMA",
+      "url_code": null
+    },
+    {
+      "symbol": "AKT",
+      "name": "AKDITAL",
+      "url_code": "AKDITAL-S-A-147975645"
+    },
+    {
+      "symbol": "CFG",
+      "name": "CFG BANK",
+      "url_code": null
+    },
+    {
+      "symbol": "TGC",
+      "name": "TGCC S.A",
+      "url_code": "TRAVAUX-GENERAUX-DE-CONST-129765784"
+    },
+    {
+      "symbol": "TQM",
+      "name": "TAQA MOROCCO",
+      "url_code": null
+    },
+    {
+      "symbol": "CSR",
+      "name": "COSUMAR",
+      "url_code": "COSUMAR-SA-41148813"
+    },
+    {
+      "symbol": "LHM",
+      "name": "LAFARGEHOLCIM MAROC",
+      "url_code": null
+    },
+    {
+      "symbol": "CMA",
+      "name": "CIMENTS DU MAROC",
+      "url_code": null
+    },
+    {
+      "symbol": "MNG",
+      "name": "MANAGEM",
+      "url_code": "MANAGEM-S-A-1408721"
+    },
+    {
+      "symbol": "CMT",
+      "name": "MINIERE TOUISSIT",
+      "url_code": null
+    },
+    {
+      "symbol": "SMI",
+      "name": "SMI",
+      "url_code": null
+    },
+    {
+      "symbol": "GAZ",
+      "name": "AFRIQUIA GAZ",
+      "url_code": null
+    },
+    {
+      "symbol": "TMA",
+      "name": "TOTALENERGIES MARKETING MAROC",
+      "url_code": null
+    },
+    {
+      "symbol": "LBV",
+      "name": "LABEL VIE",
+      "url_code": null
+    },
+    {
+      "symbol": "MSA",
+      "name": "MARSA MAROC (SODEP)",
+      "url_code": null
+    },
+    {
+      "symbol": "ARD",
+      "name": "ARADEI CAPITAL",
+      "url_code": null
+    },
+    {
+      "symbol": "IMO",
+      "name": "IMMORENTE INVEST",
+      "url_code": null
+    },
+    {
+      "symbol": "ATL",
+      "name": "ATLANTASANAD",
+      "url_code": null
+    },
+    {
+      "symbol": "SAH",
+      "name": "SANLAM MAROC",
+      "url_code": null
+    },
+    {
+      "symbol": "WAA",
+      "name": "WAFA ASSURANCE",
+      "url_code": null
+    },
+    {
+      "symbol": "AGM",
+      "name": "AGMA",
+      "url_code": null
+    },
+    {
+      "symbol": "ATH",
+      "name": "AUTO HALL",
+      "url_code": null
+    },
+    {
+      "symbol": "NEJ",
+      "name": "AUTO NEJMA",
+      "url_code": null
+    },
+    {
+      "symbol": "HPS",
+      "name": "HPS",
+      "url_code": null
+    },
+    {
+      "symbol": "MIC",
+      "name": "MICRODATA",
+      "url_code": null
+    },
+    {
+      "symbol": "DWY",
+      "name": "DISWAY",
+      "url_code": null
+    },
+    {
+      "symbol": "M2M",
+      "name": "M2M GROUP",
+      "url_code": null
+    },
+    {
+      "symbol": "S2M",
+      "name": "S.M MONETIQUE",
+      "url_code": null
+    },
+    {
+      "symbol": "INV",
+      "name": "INVOLYS",
+      "url_code": null
+    },
+    {
+      "symbol": "DYT",
+      "name": "DISTY TECHNOLOGIES",
+      "url_code": null
+    },
+    {
+      "symbol": "JET",
+      "name": "JET CONTRACTORS",
+      "url_code": null
+    },
+    {
+      "symbol": "DHO",
+      "name": "DELTA HOLDING",
+      "url_code": null
+    },
+    {
+      "symbol": "MUT",
+      "name": "MUTANDIS SCA",
+      "url_code": null
+    },
+    {
+      "symbol": "LES",
+      "name": "LESIEUR CRISTAL",
+      "url_code": null
+    },
+    {
+      "symbol": "UMR",
+      "name": "UNIMER",
+      "url_code": null
+    },
+    {
+      "symbol": "DRI",
+      "name": "DARI COUSPATE",
+      "url_code": null
+    },
+    {
+      "symbol": "CRS",
+      "name": "CARTIER SAADA",
+      "url_code": null
+    },
+    {
+      "symbol": "SOT",
+      "name": "SOTHEMA",
+      "url_code": null
+    },
+    {
+      "symbol": "PRO",
+      "name": "PROMOPHARM S.A.",
+      "url_code": null
+    },
+    {
+      "symbol": "AFI",
+      "name": "AFRIC INDUSTRIES SA",
+      "url_code": null
+    },
+    {
+      "symbol": "ALM",
+      "name": "ALUMINIUM DU MAROC",
+      "url_code": null
+    },
+    {
+      "symbol": "COL",
+      "name": "COLORADO",
+      "url_code": null
+    },
+    {
+      "symbol": "SID",
+      "name": "SONASID",
+      "url_code": null
+    },
+    {
+      "symbol": "SNP",
+      "name": "SNEP",
+      "url_code": null
+    },
+    {
+      "symbol": "MOX",
+      "name": "MAGHREB OXYGENE",
+      "url_code": null
+    },
+    {
+      "symbol": "CTM",
+      "name": "CTM",
+      "url_code": null
+    },
+    {
+      "symbol": "RIS",
+      "name": "RISMA",
+      "url_code": null
+    },
+    {
+      "symbol": "BAL",
+      "name": "BALIMA",
+      "url_code": null
+    },
+    {
+      "symbol": "BCI",
+      "name": "BMCI",
+      "url_code": null
+    },
+    {
+      "symbol": "CDM",
+      "name": "CREDIT DU MAROC",
+      "url_code": null
+    },
+    {
+      "symbol": "EQD",
+      "name": "EQDOM",
+      "url_code": "SOCIETE-D-EQUIPEMENT-DOME-1408691"
+    },
+    {
+      "symbol": "SLF",
+      "name": "SALAFIN",
+      "url_code": null
+    },
+    {
+      "symbol": "MAB",
+      "name": "MAGHREBAIL",
+      "url_code": null
+    },
+    {
+      "symbol": "MLE",
+      "name": "MAROC LEASING",
+      "url_code": "MAROC-LEASING-S-A-1408716"
+    },
+    {
+      "symbol": "SNA",
+      "name": "STOKVIS NORD AFRIQUE",
+      "url_code": null
+    },
+    {
+      "symbol": "FBR",
+      "name": "FENIE BROSSETTE",
+      "url_code": null
+    },
+    {
+      "symbol": "NKL",
+      "name": "ENNAKL AUTOMOBILES",
+      "url_code": null
+    },
+    {
+      "symbol": "STR",
+      "name": "STROC INDUSTRIE",
+      "url_code": null
+    },
+    {
+      "symbol": "SRM",
+      "name": "REALISATIONS MECANIQUES",
+      "url_code": null
+    },
+    {
+      "symbol": "MDP",
+      "name": "MED PAPER",
+      "url_code": null
+    },
+    {
+      "symbol": "RDS",
+      "name": "RESIDENCES DAR SAADA",
+      "url_code": null
+    },
+    {
+      "symbol": "ZDJ",
+      "name": "ZELLIDJA S.A",
+      "url_code": null
+    },
+    {
+      "symbol": "REB",
+      "name": "REBAB COMPANY",
+      "url_code": null
+    },
+    {
+      "symbol": "SBM",
+      "name": "BOISSONS DU MAROC",
+      "url_code": null
+    },
+    {
+      "symbol": "OUL",
+      "name": "OULMES",
+      "url_code": null
+    },
+    {
+      "symbol": "IBC",
+      "name": "IB MAROC.COM",
+      "url_code": null
+    },
+    {
+      "symbol": "CMG",
+      "name": "CMGP GROUP",
+      "url_code": null
+    },
+    {
+      "symbol": "VCN",
+      "name": "VICENNE",
+      "url_code": null
+    },
+    {
+      "symbol": "CAP",
+      "name": "CASH PLUS S.A",
+      "url_code": null
+    },
+    {
+      "symbol": "GTM",
+      "name": "SGTM S.A",
+      "url_code": null
+    },
+    {
+      "symbol": "SAM",
+      "name": "SAMIR",
+      "url_code": "SAMIR-1408730"
+    },
+    {
+      "symbol": "DIS",
+      "name": "DIAC SALAF",
+      "url_code": null
+    },
+    {
+      "symbol": "DLM",
+      "name": "DELATTRE LEVIVIER MAROC",
+      "url_code": "DELATTRE-LEVIVIER-MAROC-S-3000817"
+    }
   ]
 }

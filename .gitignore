@@ -13,3 +13,4 @@ dump_schema.py
 node_modules/
 dist/
 build/
+data/historical/_debug/

@@ -31,10 +31,15 @@ pip install selenium webdriver-manager
 python scrapers/marketscreener_scraper_v3.py --symbol IAM
 ```
 
-### All Stocks:
+### All Markets:
 ```bash
 python scrapers/marketscreener_scraper_v3.py --all
 ```
+
+`--all` now builds the full universe from:
+1. `data/scrapers/instruments_bourse_casa.json`
+2. `data/scrapers/instruments_marketscreener.json`
+3. `markets on marketscreener link.md` (or `markets on marketscreener links.md`) when present
 
 ### See Browser (debug mode):
 ```bash
