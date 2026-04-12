@@ -45,5 +45,3 @@ DEFAULT_HEADERS = {
 
 # Output settings
 OUTPUT_DIR = "testing/output"
-CSV_FILENAME = "stock_data.csv"
-JSON_FILENAME = "stock_data.json"

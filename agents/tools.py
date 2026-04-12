@@ -45,22 +45,13 @@ def load_price_data(symbol: str) -> Optional[pd.DataFrame]:
     try:
         csv_path = _ROOT / "data" / "historical" / f"{symbol}_bourse_casa_full.csv"
         if not csv_path.exists():
-            # Fallback to old IAM CSVs
-            csv_path_1 = _ROOT / "IAM" / "IAM - Données Historiques dayli P.1.csv"
-            csv_path_2 = _ROOT / "IAM" / "IAM - Données Historiques dayli P.2.csv"
-            
-            if csv_path_1.exists() and csv_path_2.exists():
-                df1 = pd.read_csv(csv_path_1)
-                df2 = pd.read_csv(csv_path_2)
-                df = pd.concat([df1, df2], ignore_index=True)
-            else:
-                return None
-        else:
-            df = pd.read_csv(csv_path)
-        
-        # Normalize column names (Bourse Casa vs Investing.com format)
+            return None
+
+        df = pd.read_csv(csv_path)
+
+        # Normalize column names
         df.columns = [c.strip().lower() for c in df.columns]
-        
+
         # Map column variations
         if 'date' in df.columns:
             df.rename(columns={'date': 'Date'}, inplace=True)
@@ -71,14 +62,6 @@ def load_price_data(symbol: str) -> Optional[pd.DataFrame]:
                 'high': 'High',
                 'low': 'Low',
                 'volume': 'Volume'
-            }, inplace=True)
-        elif 'dernier' in df.columns:  # Investing.com French format
-            df.rename(columns={
-                'dernier': 'Close',
-                'ouv.': 'Open',
-                'plus haut': 'High',
-                'plus bas': 'Low',
-                'vol.': 'Volume'
             }, inplace=True)
         
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')

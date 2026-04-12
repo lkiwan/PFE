@@ -49,7 +49,7 @@ def main():
 
     # ── 1. Load price data ───────────────────────────────────────────────
     print("\n── Step 1: Loading price data ────────────────────────────────")
-    price_df = load_price_data()
+    price_df = load_price_data("IAM")
 
     # ── 2. Generate signals ──────────────────────────────────────────────
     print("\n── Step 2: Generating annual signals ─────────────────────────")
@@ -57,8 +57,7 @@ def main():
     signals = generator.generate_all_signals(price_df)
 
     if not signals:
-        print("\n[ERROR] No signals generated. Check that stock_data.json exists at:")
-        print(f"  testing/testing/stock_data.json")
+        print("\n[ERROR] No signals generated. Check that merged data exists.")
         sys.exit(1)
 
     print(f"\n  Generated {len(signals)} signals:")

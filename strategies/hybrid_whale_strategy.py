@@ -5,7 +5,7 @@ Hybrid Technical-Fundamental Strategy — IAM
 CONCEPT: "Smart Money + Strong Company"
 ────────────────────────────────────────
 Volume spikes (Whales) tell us WHEN to buy.
-Fundamental data (from testing/testing/stock_data.json) tells us WHAT to buy.
+Fundamental data (from V3 merged data) tells us WHAT to buy.
 
 We combine them:
   1. Calculate the fundamental "Composite Score" (Value, Quality, Growth, Safety, Dividend)

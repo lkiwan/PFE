@@ -1,23 +1,20 @@
 """
 Backtest Signal Generator
 =========================
-Re-runs your ScoringEngine + RecommendationEngine at each annual checkpoint
-using real historical financials from stock_data.json.
+Re-runs ScoringEngine + RecommendationEngine at each annual checkpoint
+using real historical financials from V3 merged data.
 
 For each year Y, it:
-  1. Slices stock_data.json to only include years <= Y  (no look-ahead)
+  1. Masks merged data to only include years <= Y (no look-ahead)
   2. Looks up the actual closing price in the CSV for the signal date
   3. Runs the valuation models and scoring engine
   4. Returns a BUY / HOLD / SELL signal with upside% and composite score
 
 Signal dates are set to early February each year, which is when IAM
-publishes its full-year results (e.g. annual results released ~Feb 2025
-for FY2024). This avoids forward-looking bias.
+publishes its full-year results.
 """
 
 import sys
-import os
-import json
 import copy
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -27,6 +24,7 @@ import pandas as pd
 _ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_ROOT))
 
+from core.data_merger import load_stock_data as load_merged_data
 from core.data_normalizer import normalize_stock_data
 from models.dcf_model import DCFModel
 from models.ddm_model import DDMModel
@@ -38,69 +36,40 @@ from strategies.recommendation_engine import RecommendationEngine
 import utils.financial_constants as const
 
 
-# ─── constants ────────────────────────────────────────────────────────────────
-_STOCK_DATA_PATH = _ROOT / "testing" / "testing" / "stock_data.json"
-
 # IAM annual results publication schedule (approximate)
-# Key: fiscal year results available  →  Value: signal date (first trading day after publication)
 SIGNAL_DATES: Dict[int, str] = {
-    # FY2020 results published ~Feb 2021 → signal early March 2021
     2020: "2021-03-01",
-    # FY2021 results published ~Feb 2022
     2021: "2022-02-15",
-    # FY2022 published ~Feb 2023
     2022: "2023-02-15",
-    # FY2023 published ~Feb 2024
     2023: "2024-02-15",
-    # FY2024 published Feb 2025
     2024: "2025-02-13",
-    # FY2025 published Feb 2026
     2025: "2026-02-13",
 }
 
 VALUATION_CONSTANTS = {
-    "risk_free_rate":    const.RISK_FREE_RATE,
+    "risk_free_rate":      const.RISK_FREE_RATE,
     "equity_risk_premium": const.EQUITY_RISK_PREMIUM,
-    "beta":              const.IAM_BETA,
-    "tax_rate":          const.CORPORATE_TAX_RATE,
-    "terminal_growth":   const.TERMINAL_GROWTH_RATE,
-    "num_shares":        const.NUM_SHARES,
+    "beta":                const.IAM_BETA,
+    "tax_rate":            const.CORPORATE_TAX_RATE,
+    "terminal_growth":     const.TERMINAL_GROWTH_RATE,
+    "num_shares":          const.NUM_SHARES,
 }
 
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
-def load_stock_data(path: Optional[Path] = None) -> dict:
-    """Load raw stock_data.json and return the first stock entry."""
-    path = path or _STOCK_DATA_PATH
-    with open(path, "r", encoding="utf-8") as f:
-        raw = json.load(f)
-    stocks = raw.get("stocks", [])
-    if not stocks:
-        raise ValueError(f"No stocks found in {path}")
-    return stocks[0]
-
-
 def _mask_future_data(stock: dict, cutoff_year: int) -> dict:
-    """Return a deep copy of stock with all data after cutoff_year removed.
+    """Return a deep copy with all hist_* data after cutoff_year removed.
 
-    This prevents look-ahead bias — when generating the signal for FY2024,
+    Prevents look-ahead bias — when generating the signal for FY2024,
     we must not see FY2025 results.
     """
     s = copy.deepcopy(stock)
     cutoff = str(cutoff_year)
 
-    def _trim(d: dict) -> dict:
-        if isinstance(d, dict):
-            return {k: v for k, v in d.items() if k <= cutoff}
-        return d
-
-    # Trim all time-series dicts in financials and valuation
-    for section in ("financials", "valuation"):
-        sec = s.get(section, {})
-        for field, value in sec.items():
-            if isinstance(value, dict):
-                sec[field] = _trim(value)
+    for key, value in s.items():
+        if key.startswith("hist_") and isinstance(value, dict):
+            s[key] = {k: v for k, v in value.items() if k <= cutoff}
 
     return s
 
@@ -127,33 +96,17 @@ def _run_models(data: dict) -> list:
 # ─── main signal generator ────────────────────────────────────────────────────
 
 class SignalGenerator:
-    """Generates BUY/HOLD/SELL signals at annual checkpoints for IAM."""
+    """Generates BUY/HOLD/SELL signals at annual checkpoints."""
 
-    def __init__(self, stock_data_path: Optional[Path] = None):
-        self.raw_stock = load_stock_data(stock_data_path)
+    def __init__(self, symbol: str = "IAM"):
+        self.raw_stock = load_merged_data(symbol, verbose=False)
 
     def generate_all_signals(
         self,
         price_df: pd.DataFrame,
         fiscal_years: Optional[List[int]] = None,
     ) -> List[Dict[str, Any]]:
-        """Generate signals for all available fiscal years.
-
-        Parameters
-        ----------
-        price_df : pd.DataFrame
-            Daily price data with DatetimeIndex (from data_loader.load_price_data())
-        fiscal_years : list of int, optional
-            Which FY snapshots to generate signals for.
-            Defaults to all years in SIGNAL_DATES.
-
-        Returns
-        -------
-        list of dicts, each containing:
-            fiscal_year, signal_date, execution_date, price_at_signal,
-            signal, upside_pct, composite_score,
-            intrinsic_value, model_results, factor_scores
-        """
+        """Generate signals for all available fiscal years."""
         if fiscal_years is None:
             fiscal_years = sorted(SIGNAL_DATES.keys())
 
@@ -174,7 +127,6 @@ class SignalGenerator:
         signal_date_str = SIGNAL_DATES[fiscal_year]
         signal_date = pd.Timestamp(signal_date_str)
 
-        # Find actual execution price (next open after signal date)
         from backtest.data_loader import get_price_on_or_after, get_price_on_or_before
 
         exec_date, exec_price = get_price_on_or_after(price_df, signal_date)
@@ -182,7 +134,6 @@ class SignalGenerator:
             print(f"  [SKIP] FY{fiscal_year}: no price data after {signal_date_str}")
             return None
 
-        # Find price at signal date (for upside calculation)
         _, price_at_signal = get_price_on_or_before(price_df, signal_date)
         if price_at_signal is None:
             price_at_signal = exec_price
@@ -190,14 +141,9 @@ class SignalGenerator:
         print(f"\n  FY{fiscal_year} | Signal date: {signal_date.date()} "
               f"| Price: {price_at_signal:.2f} MAD")
 
-        # Build data snapshot — mask future years
+        # Mask future years from hist_* fields
         masked = _mask_future_data(self.raw_stock, fiscal_year)
-        # Override current price with actual historical price
-        masked["price_performance"] = copy.deepcopy(
-            self.raw_stock.get("price_performance", {})
-        )
-        masked["price_performance"]["last_price"] = price_at_signal
-        masked["current_price"] = price_at_signal
+        masked["price"] = price_at_signal
 
         # Normalize
         try:
@@ -234,7 +180,7 @@ class SignalGenerator:
         upside = rec["intrinsic_value"]["upside_pct"]
         iv = rec["intrinsic_value"]["weighted_average"]
 
-        print(f"         ➜ {signal_str:12s} | Upside: {upside:+.1f}%  "
+        print(f"         -> {signal_str:12s} | Upside: {upside:+.1f}%  "
               f"| IV: {iv:.2f} MAD  | Score: {factor_scores.get('composite', 0):.1f}/100")
 
         return {

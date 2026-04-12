@@ -52,7 +52,7 @@ def main():
 
     # 1. Load price data
     print("\n── Step 1: Loading price data ────────────────────────────────")
-    df = load_price_data()
+    df = load_price_data("IAM")
     if args.start:
         df = df[df.index >= pd.Timestamp(args.start)]
         print(f"  Filtered to start from {args.start} ({len(df):,} days)")
