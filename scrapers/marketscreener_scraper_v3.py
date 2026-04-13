@@ -9,6 +9,7 @@ Installation:
 
 Usage:
     python scrapers/marketscreener_scraper_v3.py --symbol IAM
+    python scrapers/marketscreener_scraper_v3.py --all --workers 3
 """
 
 import re
@@ -58,6 +59,12 @@ MARKET_LINKS_PATHS = (
 DATA_DIR = _ROOT / "data" / "historical"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+# Persistent state: tracks the last *full* scrape (all 6 pages) per symbol.
+# Daily scrapes (main + consensus only) do NOT update this timestamp.
+SCRAPE_STATE_PATH = DATA_DIR / "_scrape_state.json"
+# If the last full scrape is older than this, a full scrape is triggered.
+FULL_SCRAPE_MAX_AGE_DAYS = 365
+
 BASE_URL = "https://www.marketscreener.com/quote/stock"
 MS_QUOTE_URL_RE = re.compile(
     r"https?://(?:www\.)?marketscreener\.com/quote/stock/([A-Za-z0-9\-]+)/?",
@@ -75,6 +82,48 @@ USER_AGENTS = [
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# =============================================================================
+# Scrape-state helpers (daily vs full mode)
+# =============================================================================
+
+def _load_scrape_state() -> Dict[str, Any]:
+    """Load the per-symbol scrape state from disk."""
+    if not SCRAPE_STATE_PATH.exists():
+        return {}
+    try:
+        with open(SCRAPE_STATE_PATH, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _save_scrape_state(state: Dict[str, Any]) -> None:
+    """Persist the per-symbol scrape state to disk."""
+    SCRAPE_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(SCRAPE_STATE_PATH, 'w', encoding='utf-8') as f:
+        json.dump(state, f, indent=2, ensure_ascii=False)
+
+
+def _needs_full_scrape(symbol: str, state: Dict[str, Any]) -> bool:
+    """Return True if the symbol has never had a full scrape or it's older than FULL_SCRAPE_MAX_AGE_DAYS."""
+    entry = state.get(symbol)
+    if not entry or not entry.get("last_full_scrape"):
+        return True
+    try:
+        last = datetime.fromisoformat(entry["last_full_scrape"])
+        age_days = (datetime.now(timezone.utc) - last).total_seconds() / 86400
+        return age_days >= FULL_SCRAPE_MAX_AGE_DAYS
+    except (ValueError, TypeError):
+        return True
+
+
+def _mark_full_scrape(symbol: str, state: Dict[str, Any]) -> None:
+    """Record that a full scrape just completed for this symbol."""
+    if symbol not in state:
+        state[symbol] = {}
+    state[symbol]["last_full_scrape"] = datetime.now(timezone.utc).isoformat()
+
 
 # =============================================================================
 # Data Model
@@ -379,10 +428,16 @@ def parse_rating_keyword(text: Optional[str]) -> Optional[str]:
 # =============================================================================
 
 class SeleniumScraper:
-    def __init__(self, headless: bool = True, debug: bool = False, user_agent: Optional[str] = None):
+    def __init__(self, headless: bool = True, debug: bool = False, user_agent: Optional[str] = None, worker_id: int = 0):
         """Initialize Selenium driver (uses undetected-chromedriver when available)."""
         self.debug = debug
         ua = user_agent or random.choice(USER_AGENTS)
+
+        # Ensure workers don't collide when creating Chrome profiles
+        import tempfile
+        import os as _os
+        base_tmp = Path(tempfile.gettempdir()) / f"marketscreener_uc_{worker_id}_{int(time.time())}"
+        base_tmp.mkdir(parents=True, exist_ok=True)
 
         if HAS_UC:
             # -------------------------------------------------------
@@ -412,7 +467,6 @@ class SeleniumScraper:
             uc_options.add_argument(f'--user-agent={ua}')
 
             # Locate the UC cache dir (Windows: %APPDATA%\undetected_chromedriver)
-            import os as _os
             _uc_cache = Path(_os.environ.get("APPDATA", "")) / "undetected_chromedriver" / "undetected_chromedriver.exe"
             _driver_path = str(_uc_cache) if _uc_cache.exists() else None
             if _driver_path:
@@ -427,7 +481,23 @@ class SeleniumScraper:
                     options=uc_options,
                     headless=headless,
                     driver_executable_path=_driver_path,  # None = let UC download
+                    user_data_dir=str(base_tmp),
                 )
+                # Suppress annoying WinError 6 on process shutdown (UC bug on Windows)
+                _uc_class = self.driver.__class__
+                if not hasattr(_uc_class, '_patched_del'):
+                    _orig_del = _uc_class.__del__
+                    def _silent_del(instance):
+                        try:
+                            _orig_del(instance)
+                        except OSError as e:
+                            if e.winerror != 6:
+                                raise
+                        except Exception:
+                            pass
+                    _uc_class.__del__ = _silent_del
+                    _uc_class._patched_del = True
+
             except Exception as exc:
                 logger.error(f"undetected-chromedriver failed: {exc}")
                 raise
@@ -592,8 +662,8 @@ class SeleniumScraper:
         price = parse_number(price_value) if price_value else None
         if not price:
             for price_pattern in [
-                r'(\d+(?:[.,]\d+)?)\s*MAD\b',
-                r'Last\s*(?:Price|Quote)?[:\s]+(\d+(?:[.,]\d+)?)',
+                r'(\d[\d\s.,]*\d)\s*MAD\b',
+                r'Last\s*(?:Price|Quote)?[:\s]+(\d[\d\s.,]*\d)',
             ]:
                 match = re.search(price_pattern, page_text, re.IGNORECASE)
                 if match:
@@ -817,6 +887,22 @@ class SeleniumScraper:
 
         self._parse_year_tables(soup, label_map)
 
+    @staticmethod
+    def _normalize_to_millions(series: Dict[str, float]) -> None:
+        """
+        The cash-flow / balance-sheet page on MarketScreener displays values
+        with B/M suffixes (e.g. "6.01B", "398M") which parse_number expands
+        to raw MAD.  The finances page, however, stores the same metrics as
+        plain numbers in **millions MAD** (footnote ¹MAD in Million).
+
+        To keep every hist_* series in a single unit (millions MAD), convert
+        any value whose absolute magnitude ≥ 1 000 000 (i.e. clearly raw MAD
+        rather than millions) by dividing by 1 000 000.
+        """
+        for year, val in series.items():
+            if abs(val) >= 1_000_000:
+                series[year] = round(val / 1_000_000, 2)
+
     def scrape_cashflow_page(self, data: StockData, url_code: str) -> None:
         """Scrape cash flow statement page (OCF)."""
         url = f"{BASE_URL}/{url_code}/finances-cash-flow-statement/"
@@ -826,16 +912,48 @@ class SeleniumScraper:
         soup = self._wait_and_get_soup(wait_seconds=3)
         self._maybe_dump_html(data.symbol, "cashflow")
 
+        # Collect into temporary dicts so we can normalize before merging
+        # into data.* (which may already have millions-scale values from
+        # the finances page).
+        tmp_ocf: Dict[str, float] = {}
+        tmp_fcf: Dict[str, float] = {}
+        tmp_capex: Dict[str, float] = {}
+        tmp_cash: Dict[str, float] = {}
+        tmp_equity: Dict[str, float] = {}
+        _skip: Dict[str, float] = {}
+
         label_map: List[Tuple[str, Dict[str, float], bool]] = [
-            (r'(?:cash\s*from\s*operations?|operating\s*cash\s*flow)(?!.*(?:growth|cagr|margin|liabilities))', data.hist_ocf, True),
-            (r'(?:free\s*cash\s*flow|(?:^|\b)fcf\b)(?!.*(?:growth|cagr|margin|yield))', data.hist_fcf, True),
-            (r'(?:capex|capital\s*expenditure)(?!.*(?:growth|cagr|margin))', data.hist_capex, True),
+            # Skip ratio rows containing '/' FIRST (e.g. "Debt / (EBITDA - Capex)")
+            # so they don't pollute the real metric rows below.
+            (r'/', _skip, False),
+            # Skip growth / CAGR sub-rows
+            (r'(?:growth|cagr)\s*%', _skip, False),
+            (r'(?:cash\s*from\s*operations?|operating\s*cash\s*flow)(?!.*(?:growth|cagr|margin|liabilities))', tmp_ocf, True),
+            (r'(?:free\s*cash\s*flow|(?:^|\b)fcf\b)(?!.*(?:growth|cagr|margin|yield))', tmp_fcf, True),
+            (r'(?:capex|capital\s*expenditure)(?!.*(?:growth|cagr|margin))', tmp_capex, True),
             # Balance sheet items also appear on this page
-            (r'(?:cash\s*and\s*equivalents|total\s*cash\s*and\s*short)', data.hist_cash, True),
-            (r'(?:total\s*(?:common\s*)?equity|shareholders?\s*equity)(?!.*(?:growth|cagr|debt|return))', data.hist_equity, True),
+            (r'(?:cash\s*and\s*equivalents|total\s*cash\s*and\s*short)', tmp_cash, True),
+            (r'(?:total\s*(?:common\s*)?equity|shareholders?\s*equity)(?!.*(?:growth|cagr|debt|return))', tmp_equity, True),
         ]
 
         self._parse_year_tables(soup, label_map)
+
+        # Normalize raw-MAD values (from B/M suffixes) → millions MAD
+        for tmp in (tmp_ocf, tmp_fcf, tmp_capex, tmp_cash, tmp_equity):
+            self._normalize_to_millions(tmp)
+
+        # Merge: cash-flow page fills gaps but does NOT overwrite existing
+        # values from the finances page (which are already in millions).
+        for src, dst in [
+            (tmp_ocf, data.hist_ocf),
+            (tmp_fcf, data.hist_fcf),
+            (tmp_capex, data.hist_capex),
+            (tmp_cash, data.hist_cash),
+            (tmp_equity, data.hist_equity),
+        ]:
+            for year, val in src.items():
+                if year not in dst:
+                    dst[year] = val
 
     def scrape_valuation_page(self, data: StockData, url_code: str) -> None:
         """Scrape valuation page for Price-to-Book."""
@@ -1127,6 +1245,64 @@ class SeleniumScraper:
                 if self.looks_rate_limited():
                     data.scrape_warnings.append(f"Rate-limited on {page_name} (gave up after retry)")
                     logger.error(f"   Still rate-limited on {page_name} after clear — skipping remaining pages")
+                    break
+
+            time.sleep(random.uniform(1.5, 3.0))
+
+        data.validate()
+
+        return data
+
+    def scrape_daily(self, symbol: str, url_code: str, existing_json_path: Optional[Path] = None) -> StockData:
+        """
+        Daily scrape: only main page + consensus (2 pages instead of 6).
+        Merges fresh market data into existing historical data from the JSON file.
+        """
+        logger.info(f"\n{'='*60}")
+        logger.info(f"Scraping {symbol} — DAILY mode (main + consensus)")
+        logger.info(f"{'='*60}")
+
+        # Load existing data to preserve historical fundamentals
+        existing: Dict[str, Any] = {}
+        json_path = existing_json_path or (DATA_DIR / f"{symbol}_marketscreener_v3.json")
+        if json_path.exists():
+            try:
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    existing = json.load(f)
+                logger.info(f"   Loaded existing data from {json_path.name}")
+            except (json.JSONDecodeError, OSError) as exc:
+                logger.warning(f"   Could not load existing data: {exc}")
+
+        data = StockData(symbol=symbol)
+
+        # Restore all historical series from the existing file
+        hist_fields = [
+            'hist_revenue', 'hist_net_income', 'hist_eps', 'hist_ebitda',
+            'hist_fcf', 'hist_ocf', 'hist_capex',
+            'hist_debt', 'hist_cash', 'hist_equity',
+            'hist_net_margin', 'hist_ebit_margin', 'hist_ebitda_margin',
+            'hist_gross_margin', 'hist_roe', 'hist_roce',
+            'hist_ev_ebitda', 'hist_dividend_per_share', 'hist_eps_growth',
+        ]
+        for field_name in hist_fields:
+            if field_name in existing and existing[field_name]:
+                getattr(data, field_name).update(existing[field_name])
+
+        # Scrape only 2 pages
+        pages = [
+            ("main",      self.scrape_main_page),
+            ("consensus", self.scrape_consensus_page),
+        ]
+
+        for page_name, scrape_fn in pages:
+            scrape_fn(data, url_code)
+
+            if self.looks_rate_limited():
+                self._handle_rate_limit(page_name)
+                scrape_fn(data, url_code)
+                if self.looks_rate_limited():
+                    data.scrape_warnings.append(f"Rate-limited on {page_name} (gave up after retry)")
+                    logger.error(f"   Still rate-limited on {page_name} after clear — skipping")
                     break
 
             time.sleep(random.uniform(1.5, 3.0))
@@ -1440,17 +1616,133 @@ def _resolve_targets(args, ms_instruments: List[Dict[str, Any]]) -> List[Dict[st
         print(f"❌ Symbol {args.symbol} not found")
         return []
 
-    # Interactive picker (only MS-known instruments).
+    # Interactive picker.
     print("\n📊 MarketScreener Scraper V3 (Selenium)")
     print("=" * 60)
+    print(f"  [0] ALL ({len(ms_instruments)} stocks)")
     for i, inst in enumerate(ms_instruments, 1):
         print(f"  [{i}] {inst['symbol']:5s} - {inst['name']}")
     try:
-        choice = int(input("\nSelect number: ")) - 1
-        return [ms_instruments[choice]]
+        choice = int(input("\nSelect number: "))
+        if choice == 0:
+            return ms_instruments
+        return [ms_instruments[choice - 1]]
     except (ValueError, IndexError):
         print("❌ Invalid selection")
         return []
+
+
+def _scrape_batch(batch_args):
+    """
+    Worker function for parallel scraping.
+    Runs in its own process with its own Chrome instance.
+    Auto-selects daily vs full mode per symbol based on scrape state.
+    """
+    (worker_id, instruments, headful, debug, delay_min, delay_max,
+     restart_every, resume, max_age_hours, force_full) = batch_args
+
+    # Stagger start so workers don't hit the server simultaneously
+    time.sleep(worker_id * 5)
+
+    tag = f"[W{worker_id}]"
+    scraper = SeleniumScraper(headless=not headful, debug=debug, worker_id=worker_id)
+    processed = 0
+    failed_symbols = []
+    state = _load_scrape_state()
+
+    def _restart():
+        nonlocal scraper
+        try:
+            scraper.close()
+        except Exception:
+            pass
+        scraper = SeleniumScraper(headless=not headful, debug=debug, worker_id=worker_id)
+
+    try:
+        for idx, inst in enumerate(instruments, 1):
+            symbol = inst['symbol']
+
+            if resume and _was_scraped_recently(symbol, max_age_hours):
+                logger.info(f"{tag} [{idx}/{len(instruments)}] {symbol}: skipped (recent)")
+                continue
+
+            url_code = inst.get('url_code')
+            if not url_code:
+                url_code = scraper.discover_url_code(symbol, inst.get('name', symbol))
+                if not url_code:
+                    logger.warning(f"{tag} {symbol}: no MS slug found, skipped")
+                    failed_symbols.append(symbol)
+                    continue
+
+            # Decide: daily or full scrape
+            do_full = force_full or _needs_full_scrape(symbol, state)
+            mode_label = "FULL" if do_full else "DAILY"
+            logger.info(f"{tag} [{idx}/{len(instruments)}] {symbol} ({mode_label})")
+
+            stock_data = None
+            attempts = 0
+            while True:
+                attempts += 1
+                try:
+                    if do_full:
+                        stock_data = scraper.scrape(symbol, url_code)
+                    else:
+                        stock_data = scraper.scrape_daily(symbol, url_code)
+                except WebDriverException as exc:
+                    logger.error(f"{tag} browser error on {symbol}: {exc}")
+                    _restart()
+                    if attempts >= 2:
+                        failed_symbols.append(symbol)
+                        stock_data = None
+                        break
+                    continue
+
+                rate_limited = (
+                    scraper.looks_rate_limited()
+                    or any('Rate-limited' in w for w in stock_data.scrape_warnings)
+                )
+                if not rate_limited:
+                    break
+
+                logger.warning(f"{tag} rate-limited on {symbol}, clearing + restart...")
+                try:
+                    scraper.hard_clear_session()
+                except Exception:
+                    pass
+                _restart()
+                if attempts >= 2:
+                    failed_symbols.append(symbol)
+                    stock_data = None
+                    break
+                time.sleep(random.uniform(15, 30))
+
+            if stock_data is not None:
+                output_file = DATA_DIR / f"{symbol}_marketscreener_v3.json"
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    json.dump(asdict(stock_data), f, indent=2, default=str, ensure_ascii=False)
+                _print_summary(stock_data, output_file)
+                processed += 1
+
+                if do_full:
+                    _mark_full_scrape(symbol, state)
+                    _save_scrape_state(state)
+
+            if restart_every and processed > 0 and processed % restart_every == 0:
+                _restart()
+
+            if idx < len(instruments):
+                time.sleep(random.uniform(delay_min, delay_max))
+
+    except KeyboardInterrupt:
+        logger.info(f"{tag} interrupted")
+    finally:
+        _save_scrape_state(state)
+        try:
+            scraper.close()
+        except Exception:
+            pass
+
+    return worker_id, processed, failed_symbols
 
 
 def main():
@@ -1475,6 +1767,16 @@ def main():
                         help='Cooldown (seconds) when MarketScreener appears to rate-limit us (default 300).')
     parser.add_argument('--restart-every', type=int, default=15,
                         help='Restart the Chrome session every N instruments to clear cookies (default 15).')
+    parser.add_argument('--workers', type=int, default=1,
+                        help='Number of parallel Chrome sessions (default 1). '
+                             'Use 2-3 for faster runs. Each worker scrapes a subset of stocks.')
+    parser.add_argument('--discover', action='store_true',
+                        help='Only discover MarketScreener URL slugs for all stocks '
+                             '(no data scraping). Fast: ~3-5 min for 80 stocks.')
+    parser.add_argument('--full', action='store_true',
+                        help='Force a full scrape (all 6 pages) even if a recent full scrape exists. '
+                             'Without this flag, the scraper auto-selects daily mode (main + consensus) '
+                             'when the last full scrape is less than 1 year old.')
     args = parser.parse_args()
 
     ms_instruments = _load_ms_instruments()
@@ -1485,14 +1787,105 @@ def main():
     if ms_instruments:
         _save_ms_instruments(ms_instruments)
         logger.info(f"📚 Synced {CONFIG_PATH.name} with {len(ms_instruments)} symbols")
+
+    # ── Discover-only mode: find URL slugs without scraping data ──────
+    if args.discover:
+        missing = [i for i in ms_instruments if not i.get('url_code')]
+        already = len(ms_instruments) - len(missing)
+        _safe_print(f"\n🔎 Discover mode: {already} already have url_code, {len(missing)} to discover")
+        if not missing:
+            _safe_print("   All stocks already have url_codes. Nothing to do.")
+            return
+
+        scraper = SeleniumScraper(headless=not args.headful, debug=args.debug)
+        found, failed = 0, 0
+        try:
+            for idx, inst in enumerate(missing, 1):
+                symbol = inst['symbol']
+                name = inst.get('name', symbol)
+                _safe_print(f"   [{idx}/{len(missing)}] {symbol} - {name}")
+
+                url_code = scraper.discover_url_code(symbol, name)
+                if url_code:
+                    inst['url_code'] = url_code
+                    found += 1
+                    _safe_print(f"      ✓ {url_code}")
+                else:
+                    failed += 1
+                    _safe_print(f"      ✗ not found")
+
+                if scraper.looks_rate_limited():
+                    _safe_print("   ⚠ Rate limited — clearing session...")
+                    scraper.hard_clear_session()
+                    time.sleep(random.uniform(10, 20))
+
+                time.sleep(random.uniform(2, 5))
+        except KeyboardInterrupt:
+            _safe_print("\n   Interrupted.")
+        finally:
+            scraper.close()
+            _save_ms_instruments(ms_instruments)
+
+        _safe_print(f"\n🏁 Done. Found {found}, failed {failed}.")
+        _safe_print(f"   Config saved to {CONFIG_PATH.name}")
+        total_with_code = sum(1 for i in ms_instruments if i.get('url_code'))
+        _safe_print(f"   Total with url_code: {total_with_code}/{len(ms_instruments)}")
+        return
+
     to_process = _resolve_targets(args, ms_instruments)
     if not to_process:
         return
 
+    n_workers = min(args.workers, len(to_process))
+
+    # ── Parallel mode: split work across N Chrome sessions ──────────────
+    if n_workers > 1:
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+        import math
+
+        chunk_size = math.ceil(len(to_process) / n_workers)
+        chunks = [to_process[i:i + chunk_size] for i in range(0, len(to_process), chunk_size)]
+
+        logger.info(f"\n🚀 Parallel mode: {len(chunks)} workers x ~{chunk_size} stocks each")
+        logger.info(f"   Total: {len(to_process)} stocks")
+
+        batch_args = [
+            (wid, chunk, args.headful, args.debug, args.delay_min, args.delay_max,
+             args.restart_every, args.resume, args.max_age_hours, args.full)
+            for wid, chunk in enumerate(chunks)
+        ]
+
+        total_processed = 0
+        all_failed = []
+
+        with ProcessPoolExecutor(max_workers=len(chunks)) as pool:
+            futures = {pool.submit(_scrape_batch, ba): ba[0] for ba in batch_args}
+            try:
+                for future in as_completed(futures):
+                    wid = futures[future]
+                    try:
+                        _, processed, failed = future.result()
+                        total_processed += processed
+                        all_failed.extend(failed)
+                        logger.info(f"[W{wid}] finished: {processed} scraped, {len(failed)} failed")
+                    except Exception as exc:
+                        logger.error(f"[W{wid}] crashed: {exc}")
+            except KeyboardInterrupt:
+                logger.info("Interrupted — shutting down workers...")
+                pool.shutdown(wait=False, cancel_futures=True)
+
+        logger.info(f"\n🏁 Done. Processed {total_processed}/{len(to_process)} instruments.")
+        if all_failed:
+            logger.warning(f"⚠ {len(all_failed)} failed: {', '.join(all_failed)}")
+            logger.warning("   Re-run with --resume to retry only the missing/failed tickers.")
+        return
+
+    # ── Sequential mode (single worker) ─────────────────────────────────
     scraper: Optional[SeleniumScraper] = SeleniumScraper(headless=not args.headful, debug=args.debug)
     processed = 0
     rate_limit_hits = 0
     failed_symbols: List[str] = []
+    state = _load_scrape_state()
 
     def restart_browser():
         nonlocal scraper
@@ -1505,14 +1898,16 @@ def main():
         for idx, inst in enumerate(to_process, 1):
             symbol = inst['symbol']
 
-            # Skip recently-scraped if --resume.
             if args.resume and _was_scraped_recently(symbol, args.max_age_hours):
                 logger.info(f"⏭  [{idx}/{len(to_process)}] {symbol}: skipped (recent file < {args.max_age_hours}h)")
                 continue
 
-            logger.info(f"\n▶ [{idx}/{len(to_process)}] {symbol} — {inst.get('name', '')}")
+            # Decide: daily or full scrape
+            do_full = args.full or _needs_full_scrape(symbol, state)
+            mode_label = "FULL" if do_full else "DAILY"
 
-            # Discover MS slug if missing.
+            logger.info(f"\n▶ [{idx}/{len(to_process)}] {symbol} — {inst.get('name', '')} ({mode_label})")
+
             url_code = inst.get('url_code')
             if not url_code:
                 url_code = scraper.discover_url_code(symbol, inst.get('name', symbol))
@@ -1520,7 +1915,6 @@ def main():
                     logger.warning(f"   skipped: no MS slug found for {symbol}")
                     failed_symbols.append(symbol)
                     continue
-                # Cache discovery back into the MS instruments file.
                 ms_instruments = _load_ms_instruments()
                 if not any(i['symbol'].upper() == symbol.upper() for i in ms_instruments):
                     ms_instruments.append({
@@ -1534,17 +1928,15 @@ def main():
                             i['url_code'] = url_code
                 _save_ms_instruments(ms_instruments)
 
-            # Scrape with rate-limit handling. Strategy: on rate-limit, clear
-            # cookies + restart the browser (which rotates UA) and retry the
-            # same instrument once. If the retry still rate-limits, record it
-            # in failed_symbols and move on — no global abort, because the
-            # user wants a full-market run to complete.
             stock_data: Optional[StockData] = None
             attempts = 0
             while True:
                 attempts += 1
                 try:
-                    stock_data = scraper.scrape(symbol, url_code)
+                    if do_full:
+                        stock_data = scraper.scrape(symbol, url_code)
+                    else:
+                        stock_data = scraper.scrape_daily(symbol, url_code)
                 except WebDriverException as exc:
                     logger.error(f"   browser error: {exc}; restarting...")
                     restart_browser()
@@ -1559,7 +1951,7 @@ def main():
                     or any('Rate-limited' in w for w in stock_data.scrape_warnings)
                 )
                 if not rate_limited:
-                    break  # success
+                    break
 
                 rate_limit_hits += 1
                 logger.warning(
@@ -1570,7 +1962,7 @@ def main():
                     scraper.hard_clear_session()
                 except Exception as exc:
                     logger.warning(f"   hard_clear_session failed: {exc}")
-                restart_browser()  # fresh Chrome process + new UA
+                restart_browser()
                 if attempts >= 2:
                     logger.error(
                         f"   {symbol}: still rate-limited after cookie clear, "
@@ -1579,25 +1971,24 @@ def main():
                     failed_symbols.append(symbol)
                     stock_data = None
                     break
-                # Short polite wait before retry — the cookie clear is the
-                # actual mitigation, so we don't need the old 5-minute cooldown.
                 time.sleep(random.uniform(15, 30))
 
             if stock_data is None:
                 continue
 
-            # Persist result.
             output_file = DATA_DIR / f"{symbol}_marketscreener_v3.json"
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(asdict(stock_data), f, indent=2, default=str, ensure_ascii=False)
             _print_summary(stock_data, output_file)
             processed += 1
 
-            # Periodic Chrome restart to drop cookies + rotate UA.
+            if do_full:
+                _mark_full_scrape(symbol, state)
+                _save_scrape_state(state)
+
             if args.restart_every and processed > 0 and processed % args.restart_every == 0:
                 restart_browser()
 
-            # Random polite delay (skip after the last item).
             if idx < len(to_process):
                 delay = random.uniform(args.delay_min, args.delay_max)
                 logger.info(f"   ⏱  sleeping {delay:.1f}s before next instrument...")
@@ -1613,6 +2004,7 @@ def main():
             )
 
     finally:
+        _save_scrape_state(state)
         if scraper is not None:
             scraper.close()
 

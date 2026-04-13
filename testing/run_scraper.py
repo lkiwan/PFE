@@ -1,11 +1,13 @@
 """
 Unified News Scraper for MarketScreener
 ========================================
-Fetches IAM (Maroc Telecom) news articles from MarketScreener with full article content.
+Fetches news articles from MarketScreener for Casablanca stocks.
 Exports all data to CSV format.
 
 Usage:
-    python run_scraper.py
+    python run_scraper.py                  # Interactive picker
+    python run_scraper.py --symbol IAM     # Single stock
+    python run_scraper.py --all            # All stocks with url_code
 
 Output:
     news_articles.csv - CSV file with date, title, source, URL, and full article content
@@ -14,95 +16,158 @@ Output:
 import asyncio
 import csv
 import sys
-from datetime import datetime
+import argparse
+import time
+import random
+
 sys.path.insert(0, '.')
 
 from scraper import NewsScraper, StockData, STOCKS, AsyncHTTPClient
 
 
+def _safe_print(text: str) -> None:
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        print(text.encode(errors='replace').decode('ascii', errors='replace'))
+
+
+async def scrape_one(scraper, symbol, stock_config, fetch_full=False):
+    """Scrape news for one stock. Returns list of row tuples."""
+    stock_data = StockData()
+    await scraper.scrape(stock_config, stock_data, fetch_full_articles=fetch_full)
+
+    rows = []
+    for article in stock_data.news.articles:
+        rows.append((
+            symbol,
+            stock_config['full_name'],
+            article.date or '',
+            article.title or '',
+            article.source or '',
+            article.url or '',
+            article.full_content or '',
+        ))
+    return rows
+
+
 async def main():
-    """Main scraper function."""
-    print("=" * 80)
-    print("MarketScreener News Scraper - IAM (Maroc Telecom)")
-    print("=" * 80)
-    
+    parser = argparse.ArgumentParser(description='MarketScreener News Scraper')
+    parser.add_argument('--symbol', help='Stock symbol (e.g. IAM)')
+    parser.add_argument('--all', action='store_true', help='Scrape news for all stocks')
+    parser.add_argument('--full', action='store_true',
+                        help='Also fetch full article content (slower)')
+    args = parser.parse_args()
+
+    if not STOCKS:
+        print("No stocks with MarketScreener url_code found.")
+        print("Run the MarketScreener scraper first to populate url_codes.")
+        sys.exit(1)
+
+    # --- Resolve targets ---
+    symbols_sorted = sorted(STOCKS.keys())
+
+    if args.symbol:
+        sym = args.symbol.upper()
+        if sym not in STOCKS:
+            print(f"Symbol {sym} not found in MarketScreener config.")
+            print(f"Available: {', '.join(symbols_sorted)}")
+            sys.exit(1)
+        targets = [sym]
+
+    elif args.all:
+        targets = symbols_sorted
+
+    else:
+        # Interactive picker
+        _safe_print(f"\nMarketScreener News Scraper")
+        _safe_print("=" * 55)
+        _safe_print(f"  [0] ALL ({len(symbols_sorted)} stocks)")
+        for i, sym in enumerate(symbols_sorted, 1):
+            name = STOCKS[sym]['full_name']
+            _safe_print(f"  [{i}] {sym:5s} - {name}")
+
+        try:
+            choice = input("\nSelect number: ").strip()
+            if not choice:
+                sys.exit(0)
+            choice = int(choice)
+        except (ValueError, KeyboardInterrupt):
+            print("Cancelled.")
+            sys.exit(0)
+
+        if choice == 0:
+            targets = symbols_sorted
+        elif 1 <= choice <= len(symbols_sorted):
+            targets = [symbols_sorted[choice - 1]]
+        else:
+            print("Invalid selection.")
+            sys.exit(1)
+
+    # --- Scrape ---
+    _safe_print(f"\n{'='*60}")
+    _safe_print(f"MarketScreener News Scraper - {len(targets)} stock(s)")
+    _safe_print(f"{'='*60}")
+
     http_client = AsyncHTTPClient()
     scraper = NewsScraper(http_client)
-    
+    all_rows = []
+
     try:
-        # Fetch IAM articles with full content
-        print("\n[1] Fetching IAM articles with full content extraction...")
-        print("    (This may take 10-30 seconds due to individual article fetches)\n")
-        
-        stock_config = STOCKS['IAM']
-        stock_data = StockData()
-        
-        await scraper.scrape(
-            stock_config, 
-            stock_data, 
-            fetch_full_articles=True
-        )
-        
-        print(f"\n✓ Found {len(stock_data.news.articles)} articles")
-        
-        # Export to CSV
-        print("\n[2] Exporting to CSV...")
-        csv_file = 'news_articles.csv'
-        
-        with open(csv_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                'Ticker',
-                'Company', 
-                'Date',
-                'Title',
-                'Source',
-                'URL',
-                'Full_Content'
-            ])
-            
-            for article in stock_data.news.articles:
-                writer.writerow([
-                    'IAM',
-                    stock_config['full_name'],
-                    article.date or '',
-                    article.title or '',
-                    article.source or '',
-                    article.url or '',
-                    article.full_content or ''
-                ])
-        
-        print(f"✓ Exported to {csv_file}")
-        
-        # Print summary
-        print("\n" + "=" * 80)
-        print("SUMMARY")
-        print("=" * 80)
-        print(f"\nStock: IAM - {stock_config['full_name']}")
-        print(f"Total Articles: {len(stock_data.news.articles)}")
-        print(f"Output File: {csv_file}")
-        
-        if stock_data.news.articles:
-            print("\nLatest Articles:")
-            for i, article in enumerate(stock_data.news.articles[:5], 1):
-                date_str = article.date[:10] if article.date else 'N/A'
-                title = article.title[:60] if article.title else 'N/A'
-                has_content = '✓' if article.full_content else '✗'
-                print(f"  {i}. [{date_str}] {title}... [{has_content}]")
-        
-        print("\n" + "=" * 80)
-        print("✓ Done!")
-        print("=" * 80)
-        
-    except KeyError as e:
-        print(f"✗ Error: Stock ticker not found: {e}")
-        print(f"   Available stocks: {list(STOCKS.keys())}")
-    except Exception as e:
-        print(f"✗ Error: {e}")
-        import traceback
-        traceback.print_exc()
+        for idx, sym in enumerate(targets, 1):
+            config = STOCKS[sym]
+            _safe_print(f"\n[{idx}/{len(targets)}] {sym} - {config['full_name']}")
+
+            rows = await scrape_one(scraper, sym, config, fetch_full=args.full)
+            all_rows.extend(rows)
+            _safe_print(f"  Found {len(rows)} articles")
+
+            if idx < len(targets):
+                delay = random.uniform(2, 5)
+                time.sleep(delay)
+
+    except KeyboardInterrupt:
+        _safe_print("\n\nInterrupted by user.")
     finally:
         await http_client.close()
+
+    if not all_rows:
+        _safe_print("\nNo articles found.")
+        return
+
+    # --- Export to CSV ---
+    csv_file = 'news_articles.csv'
+    with open(csv_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Ticker', 'Company', 'Date', 'Title', 'Source', 'URL', 'Full_Content'])
+        writer.writerows(all_rows)
+
+    # --- Summary ---
+    _safe_print(f"\n{'='*60}")
+    _safe_print("SUMMARY")
+    _safe_print(f"{'='*60}")
+    _safe_print(f"  Stocks scraped: {len(targets)}")
+    _safe_print(f"  Total articles: {len(all_rows)}")
+    _safe_print(f"  Output file:    {csv_file}")
+
+    # Per-stock breakdown
+    from collections import Counter
+    counts = Counter(r[0] for r in all_rows)
+    _safe_print(f"\n  Per stock:")
+    for sym in targets:
+        _safe_print(f"    {sym:5s}: {counts.get(sym, 0)} articles")
+
+    if all_rows:
+        _safe_print(f"\n  Latest articles:")
+        for row in all_rows[:5]:
+            ticker, _, date, title, *_ = row
+            title_short = title[:55] if title else 'N/A'
+            date_short = date[:10] if date else 'N/A'
+            _safe_print(f"    [{ticker}] [{date_short}] {title_short}...")
+
+    _safe_print(f"\n{'='*60}")
+    _safe_print("Done!")
+    _safe_print(f"{'='*60}")
 
 
 if __name__ == '__main__':

@@ -1,0 +1,55 @@
+{
+  "symbol": "REB",
+  "scrape_timestamp": "2026-04-13T11:43:13.938711+00:00",
+  "price": 107.0,
+  "market_cap": null,
+  "volume": null,
+  "high_52w": null,
+  "low_52w": null,
+  "pe_ratio": null,
+  "dividend_yield": null,
+  "price_to_book": null,
+  "consensus": null,
+  "target_price": null,
+  "num_analysts": null,
+  "hist_revenue": {
+    "2014": 959000.0
+  },
+  "hist_net_income": {
+    "2014": -27.63
+  },
+  "hist_eps": {},
+  "hist_ebitda": {},
+  "hist_fcf": {
+    "2014": 309000.0
+  },
+  "hist_ocf": {
+    "2014": 470000.0
+  },
+  "hist_capex": {},
+  "hist_debt": {
+    "2014": -11910000.0
+  },
+  "hist_cash": {
+    "2014": 11920000.0
+  },
+  "hist_equity": {
+    "2014": 54110000.0
+  },
+  "hist_net_margin": {},
+  "hist_ebit_margin": {},
+  "hist_ebitda_margin": {},
+  "hist_gross_margin": {},
+  "hist_roe": {
+    "2014": 0.87
+  },
+  "hist_roce": {
+    "2014": -0.46
+  },
+  "hist_ev_ebitda": {},
+  "hist_dividend_per_share": {
+    "2014": -39.16
+  },
+  "hist_eps_growth": {},
+  "scrape_warnings": []
+}

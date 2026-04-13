@@ -1,6 +1,6 @@
 {
   "symbol": "ATW",
-  "scrape_timestamp": "2026-04-11T12:53:29.166932+00:00",
+  "scrape_timestamp": "2026-04-13T10:48:04.729374+00:00",
   "price": 711.0,
   "market_cap": 143000000000.0,
   "volume": null,
@@ -8,7 +8,7 @@
   "low_52w": null,
   "pe_ratio": 14.8,
   "dividend_yield": 2.6,
-  "price_to_book": 1.74,
+  "price_to_book": null,
   "consensus": "OUTPERFORM",
   "target_price": 723.5,
   "num_analysts": 2,

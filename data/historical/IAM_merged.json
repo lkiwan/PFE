@@ -1,9 +1,9 @@
 {
   "symbol": "IAM",
-  "scrape_timestamp": "2026-04-11T12:41:10.021798+00:00",
-  "price": 96.99,
-  "market_cap": 85263457026.6,
-  "volume": 361104,
+  "scrape_timestamp": "2026-04-12T14:23:55.064687+00:00",
+  "price": 96.0,
+  "market_cap": 84393152640.0,
+  "volume": 18084652,
   "high_52w": 130.0,
   "low_52w": 90.0,
   "pe_ratio": 15.7,
@@ -189,6 +189,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-12T13:59:39.608873+00:00"
+    "merged_at": "2026-04-13T10:09:33.256247+00:00"
   }
 }

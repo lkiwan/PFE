@@ -33,12 +33,12 @@
     {
       "symbol": "ADI",
       "name": "ALLIANCES",
-      "url_code": null
+      "url_code": "ALLIANCES-DEVELOPPEMENT-I-3808421"
     },
     {
       "symbol": "AFM",
       "name": "AFMA",
-      "url_code": null
+      "url_code": "AFMA-S-A-41148815"
     },
     {
       "symbol": "AKT",
@@ -48,7 +48,7 @@
     {
       "symbol": "CFG",
       "name": "CFG BANK",
-      "url_code": null
+      "url_code": "CFG-BANK-SA-162327967"
     },
     {
       "symbol": "TGC",
@@ -58,7 +58,7 @@
     {
       "symbol": "TQM",
       "name": "TAQA MOROCCO",
-      "url_code": null
+      "url_code": "TAQA-MOROCCO-S-A-26472962"
     },
     {
       "symbol": "CSR",
@@ -68,12 +68,12 @@
     {
       "symbol": "LHM",
       "name": "LAFARGEHOLCIM MAROC",
-      "url_code": null
+      "url_code": "LAFARGEHOLCIM-MAROC-S-A-41148803"
     },
     {
       "symbol": "CMA",
       "name": "CIMENTS DU MAROC",
-      "url_code": null
+      "url_code": "CIMENTS-DU-MAROC-SOCIETE--1408696"
     },
     {
       "symbol": "MNG",
@@ -83,207 +83,207 @@
     {
       "symbol": "CMT",
       "name": "MINIERE TOUISSIT",
-      "url_code": null
+      "url_code": "COMPAGNIE-MINIERE-DE-TOUI-3079802"
     },
     {
       "symbol": "SMI",
       "name": "SMI",
-      "url_code": null
+      "url_code": "SMIC-SEMICONDUCTOR-MANUFA-6170774"
     },
     {
       "symbol": "GAZ",
       "name": "AFRIQUIA GAZ",
-      "url_code": null
+      "url_code": "AFRIQUIA-GAZ-SA-1408676"
     },
     {
       "symbol": "TMA",
       "name": "TOTALENERGIES MARKETING MAROC",
-      "url_code": null
+      "url_code": "TOTALENERGIES-MARKETING-M-26785351"
     },
     {
       "symbol": "LBV",
       "name": "LABEL VIE",
-      "url_code": null
+      "url_code": "LABEL-VIE-S-A-3723656"
     },
     {
       "symbol": "MSA",
       "name": "MARSA MAROC (SODEP)",
-      "url_code": null
+      "url_code": "SOCIETE-D-EXPLOITATION-DE-31781785"
     },
     {
       "symbol": "ARD",
       "name": "ARADEI CAPITAL",
-      "url_code": null
+      "url_code": "ARADEI-CAPITAL-S-A-124598583"
     },
     {
       "symbol": "IMO",
       "name": "IMMORENTE INVEST",
-      "url_code": null
+      "url_code": "IMMORENTE-INVEST-S-A-43354348"
     },
     {
       "symbol": "ATL",
       "name": "ATLANTASANAD",
-      "url_code": null
+      "url_code": "ATLANTASANAD-SOCIETE-ANON-1408680"
     },
     {
       "symbol": "SAH",
       "name": "SANLAM MAROC",
-      "url_code": null
+      "url_code": "SANLAM-LIMITED-1413415"
     },
     {
       "symbol": "WAA",
       "name": "WAFA ASSURANCE",
-      "url_code": null
+      "url_code": "WAFA-ASSURANCE-SA-1408744"
     },
     {
       "symbol": "AGM",
       "name": "AGMA",
-      "url_code": null
+      "url_code": "AGMA-SA-1408675"
     },
     {
       "symbol": "ATH",
       "name": "AUTO HALL",
-      "url_code": null
+      "url_code": "AUTO-HALL-S-A-1408679"
     },
     {
       "symbol": "NEJ",
       "name": "AUTO NEJMA",
-      "url_code": null
+      "url_code": "AUTO-NEJMA-MAROC-S-A-1408678"
     },
     {
       "symbol": "HPS",
       "name": "HPS",
-      "url_code": null
+      "url_code": "HPSP-CO-LTD-139141839"
     },
     {
       "symbol": "MIC",
       "name": "MICRODATA",
-      "url_code": null
+      "url_code": "MICRODATA-S-A-41148794"
     },
     {
       "symbol": "DWY",
       "name": "DISWAY",
-      "url_code": null
+      "url_code": "DISWAY-S-A-1408718"
     },
     {
       "symbol": "M2M",
       "name": "M2M GROUP",
-      "url_code": null
+      "url_code": "M2M-GROUP-SA-1408714"
     },
     {
       "symbol": "S2M",
       "name": "S.M MONETIQUE",
-      "url_code": null
+      "url_code": "SOCIETE-MAGHREBINE-DE-MON-11528658"
     },
     {
       "symbol": "INV",
       "name": "INVOLYS",
-      "url_code": null
+      "url_code": "INVOLYS-S-A-1408708"
     },
     {
       "symbol": "DYT",
       "name": "DISTY TECHNOLOGIES",
-      "url_code": null
+      "url_code": "DISTY-TECHNOLOGIES-SA-140639170"
     },
     {
       "symbol": "JET",
       "name": "JET CONTRACTORS",
-      "url_code": null
+      "url_code": "JET-CONTRACTORS-11733277"
     },
     {
       "symbol": "DHO",
       "name": "DELTA HOLDING",
-      "url_code": null
+      "url_code": "DELTA-HOLDING-S-A-3028016"
     },
     {
       "symbol": "MUT",
       "name": "MUTANDIS SCA",
-      "url_code": null
+      "url_code": "MUTANDIS-SCA-49553817"
     },
     {
       "symbol": "LES",
       "name": "LESIEUR CRISTAL",
-      "url_code": null
+      "url_code": "LESIEUR-CRISTAL-S-A-41148779"
     },
     {
       "symbol": "UMR",
       "name": "UNIMER",
-      "url_code": null
+      "url_code": "UNIMER-SA-41148784"
     },
     {
       "symbol": "DRI",
       "name": "DARI COUSPATE",
-      "url_code": null
+      "url_code": "DARI-COUSPATE-SA-1408701"
     },
     {
       "symbol": "CRS",
       "name": "CARTIER SAADA",
-      "url_code": null
+      "url_code": "CARTIER-SAADA-SA-1408698"
     },
     {
       "symbol": "SOT",
       "name": "SOTHEMA",
-      "url_code": null
+      "url_code": "SOCIETE-DE-THERAPEUTIQUE--15309954"
     },
     {
       "symbol": "PRO",
       "name": "PROMOPHARM S.A.",
-      "url_code": null
+      "url_code": "SOCIETE-DE-PROMOTION-PHAR-1408727"
     },
     {
       "symbol": "AFI",
       "name": "AFRIC INDUSTRIES SA",
-      "url_code": null
+      "url_code": "AFRIC-INDUSTRIES-S-A-15309958"
     },
     {
       "symbol": "ALM",
       "name": "ALUMINIUM DU MAROC",
-      "url_code": null
+      "url_code": "ALUMINIUM-DU-MAROC-SA-1408677"
     },
     {
       "symbol": "COL",
       "name": "COLORADO",
-      "url_code": null
+      "url_code": "COLORADO-S-A-41148792"
     },
     {
       "symbol": "SID",
       "name": "SONASID",
-      "url_code": null
+      "url_code": "SONASID-S-A-1408740"
     },
     {
       "symbol": "SNP",
       "name": "SNEP",
-      "url_code": null
+      "url_code": "SOCIETE-NATIONALE-D-ELECT-1408736"
     },
     {
       "symbol": "MOX",
       "name": "MAGHREB OXYGENE",
-      "url_code": null
+      "url_code": "MAGHREB-OXYGENE-S-A-1408722"
     },
     {
       "symbol": "CTM",
       "name": "CTM",
-      "url_code": null
+      "url_code": "COMPAGNIE-DE-TRANSPORTS-A-1408700"
     },
     {
       "symbol": "RIS",
       "name": "RISMA",
-      "url_code": null
+      "url_code": "RISMA-1408729"
     },
     {
       "symbol": "BAL",
       "name": "BALIMA",
-      "url_code": null
+      "url_code": "SOCIETE-IMMOBILIERE-BALIM-41148789"
     },
     {
       "symbol": "BCI",
       "name": "BMCI",
-      "url_code": null
+      "url_code": "BANQUE-MAROCAINE-POUR-LE--1408682"
     },
     {
       "symbol": "CDM",
       "name": "CREDIT DU MAROC",
-      "url_code": null
+      "url_code": "CREDIT-DU-MAROC-S-A-1408690"
     },
     {
       "symbol": "EQD",
@@ -293,12 +293,12 @@
     {
       "symbol": "SLF",
       "name": "SALAFIN",
-      "url_code": null
+      "url_code": "SALAFIN-S-A-50061060"
     },
     {
       "symbol": "MAB",
       "name": "MAGHREBAIL",
-      "url_code": null
+      "url_code": "SOCIETE-MAGHREBINE-DE-CRE-1408715"
     },
     {
       "symbol": "MLE",
@@ -308,82 +308,82 @@
     {
       "symbol": "SNA",
       "name": "STOKVIS NORD AFRIQUE",
-      "url_code": null
+      "url_code": "STOKVIS-NORD-AFRIQUE-S-A-1408734"
     },
     {
       "symbol": "FBR",
       "name": "FENIE BROSSETTE",
-      "url_code": null
+      "url_code": "FENIE-BROSSETTE-S-A-1408704"
     },
     {
       "symbol": "NKL",
       "name": "ENNAKL AUTOMOBILES",
-      "url_code": null
+      "url_code": "ENNAKL-AUTOMOBILES-S-A-15958393"
     },
     {
       "symbol": "STR",
       "name": "STROC INDUSTRIE",
-      "url_code": null
+      "url_code": "STROC-INDUSTRIE-S-A-17053458"
     },
     {
       "symbol": "SRM",
       "name": "REALISATIONS MECANIQUES",
-      "url_code": null
+      "url_code": "SOCIETE-DE-REALISATIONS-M-1408739"
     },
     {
       "symbol": "MDP",
       "name": "MED PAPER",
-      "url_code": null
+      "url_code": "MED-PAPER-S-A-6500714"
     },
     {
       "symbol": "RDS",
       "name": "RESIDENCES DAR SAADA",
-      "url_code": null
+      "url_code": "RESIDENCES-DAR-SAADA-S-A-22448175"
     },
     {
       "symbol": "ZDJ",
       "name": "ZELLIDJA S.A",
-      "url_code": null
+      "url_code": "ZELLIDJA-S-A-41148786"
     },
     {
       "symbol": "REB",
       "name": "REBAB COMPANY",
-      "url_code": null
+      "url_code": "SOCIETE-REBAB-COMPANY-S-A-1408728"
     },
     {
       "symbol": "SBM",
       "name": "BOISSONS DU MAROC",
-      "url_code": null
+      "url_code": "SOCIETE-DES-BOISSONS-DU-M-1408688"
     },
     {
       "symbol": "OUL",
       "name": "OULMES",
-      "url_code": null
+      "url_code": "LES-EAUX-MINERALES-D-OULM-1408725"
     },
     {
       "symbol": "IBC",
       "name": "IB MAROC.COM",
-      "url_code": null
+      "url_code": "IB-MAROC-COM-SA-1408707"
     },
     {
       "symbol": "CMG",
       "name": "CMGP GROUP",
-      "url_code": null
+      "url_code": "METALS-X-LIMITED-6821108"
     },
     {
       "symbol": "VCN",
       "name": "VICENNE",
-      "url_code": null
+      "url_code": "VICENNE-S-A-190815512"
     },
     {
       "symbol": "CAP",
       "name": "CASH PLUS S.A",
-      "url_code": null
+      "url_code": "CASH-PLUS-SA-198396276"
     },
     {
       "symbol": "GTM",
       "name": "SGTM S.A",
-      "url_code": null
+      "url_code": "FLSMIDTH-CO-A-S-1412901"
     },
     {
       "symbol": "SAM",
@@ -393,7 +393,7 @@
     {
       "symbol": "DIS",
       "name": "DIAC SALAF",
-      "url_code": null
+      "url_code": "DIAC-SALAF-1408702"
     },
     {
       "symbol": "DLM",

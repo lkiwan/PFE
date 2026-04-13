@@ -73,7 +73,7 @@ def load_bourse_data(symbol: str) -> Optional[Dict[str, Any]]:
     close_col = pick_col("Dernier Cours", "close", "courscourant")
     high_col = pick_col("+haut du jour", "high", "highprice")
     low_col = pick_col("+bas du jour", "low", "lowprice")
-    vol_col = pick_col("Nombre de titres échangés", "volume", "cumultitresechanges")
+    vol_col = pick_col("Volume des échanges", "volume", "cumultitresechanges")
     mcap_col = pick_col("Capitalisation", "capitalisation", "market_cap")
 
     parsed_rows: List[Dict[str, Any]] = []
@@ -247,27 +247,104 @@ def load_stock_data(symbol: str, verbose: bool = True) -> Dict[str, Any]:
     return data
 
 
-# CLI interface
-if __name__ == "__main__":
-    import sys
+# --- Instrument list helpers ---
 
-    if len(sys.argv) < 2:
-        print("Usage: python data_merger.py <SYMBOL>")
-        print("Example: python data_merger.py IAM")
-        sys.exit(1)
+CASA_CONFIG_PATH = _ROOT / "data" / "scrapers" / "instruments_bourse_casa.json"
 
-    symbol = sys.argv[1].upper()
 
+def _load_all_symbols() -> List[Dict[str, str]]:
+    """Load the full Casablanca instrument list."""
+    if not CASA_CONFIG_PATH.exists():
+        return []
+    with open(CASA_CONFIG_PATH, 'r', encoding='utf-8') as f:
+        return json.load(f).get('instruments', [])
+
+
+def _merge_one(symbol: str, verbose: bool = True) -> bool:
+    """Merge one stock. Returns True on success, False on error."""
     try:
-        data = load_stock_data(symbol, verbose=True)
-
-        # Save merged output
+        data = load_stock_data(symbol, verbose=verbose)
         output_file = V3_DATA_DIR / f"{symbol}_merged.json"
         with open(output_file, 'w') as f:
             json.dump(data, f, indent=2)
-
-        print(f"Saved to: {output_file}")
-
+        print(f"  Saved to: {output_file.name}")
+        return True
     except FileNotFoundError as e:
-        print(f"Error: {e}")
+        print(f"  SKIP {symbol}: {e}")
+        return False
+
+
+# CLI interface
+if __name__ == "__main__":
+    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Data Merger — V3 MarketScreener + Bourse Casa')
+    parser.add_argument('symbol', nargs='?', help='Stock symbol (e.g. IAM)')
+    parser.add_argument('--all', action='store_true', help='Merge all stocks that have data')
+    args = parser.parse_args()
+
+    instruments = _load_all_symbols()
+
+    # --- Mode 1: explicit symbol from CLI ---
+    if args.symbol:
+        _merge_one(args.symbol.upper())
+        sys.exit(0)
+
+    # --- Mode 2: --all flag ---
+    if args.all:
+        if not instruments:
+            print("No instruments found in instruments_bourse_casa.json")
+            sys.exit(1)
+
+        print(f"\nMerging ALL {len(instruments)} stocks...")
+        print("=" * 55)
+        ok, skip = 0, 0
+        for inst in instruments:
+            sym = inst['symbol']
+            if _merge_one(sym, verbose=False):
+                ok += 1
+            else:
+                skip += 1
+        print("=" * 55)
+        print(f"Done: {ok} merged, {skip} skipped (no data)")
+        sys.exit(0)
+
+    # --- Mode 3: interactive picker ---
+    if not instruments:
+        print("No instruments found. Usage: python data_merger.py <SYMBOL>")
         sys.exit(1)
+
+    print(f"\nData Merger — V3 MarketScreener + Bourse Casa")
+    print("=" * 55)
+    print(f"  [0] ALL ({len(instruments)} stocks)")
+    for i, inst in enumerate(instruments, 1):
+        print(f"  [{i}] {inst['symbol']:5s} - {inst['name']}")
+
+    try:
+        choice = input("\nSelect number: ").strip()
+        if not choice:
+            sys.exit(0)
+        choice = int(choice)
+    except (ValueError, KeyboardInterrupt):
+        print("Cancelled.")
+        sys.exit(0)
+
+    if choice == 0:
+        # Merge all
+        print(f"\nMerging ALL {len(instruments)} stocks...")
+        print("=" * 55)
+        ok, skip = 0, 0
+        for inst in instruments:
+            sym = inst['symbol']
+            if _merge_one(sym, verbose=False):
+                ok += 1
+            else:
+                skip += 1
+        print("=" * 55)
+        print(f"Done: {ok} merged, {skip} skipped (no data)")
+    elif 1 <= choice <= len(instruments):
+        sym = instruments[choice - 1]['symbol']
+        _merge_one(sym, verbose=True)
+    else:
+        print("Invalid selection.")
