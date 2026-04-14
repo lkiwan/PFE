@@ -9,7 +9,7 @@ Analyzes scraped news headlines to extract:
 
 import re
 from typing import Dict, List, Any, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 # Sentiment word lists (finance-specific)
@@ -84,9 +84,10 @@ class NewsSentimentAnalyzer:
         self.articles = news_data.get("articles", [])
         self.total_count = news_data.get("total_count", 0)
     
-    def analyze_sentiment(self, news_df) -> Dict[str, Any]:
+    def analyze_sentiment(self, news_df, days: int = 30) -> Dict[str, Any]:
         """Analyze sentiment from a pandas DataFrame of news articles.
-        
+
+        Only articles from the last `days` days are used for scoring.
         Expected columns: Title, Date (others are optional)
         """
         if news_df is None or len(news_df) == 0:
@@ -95,10 +96,27 @@ class NewsSentimentAnalyzer:
                 "sentiment_score": 50,
                 "total_articles": 0
             }
-        
+
+        # Filter to last N days
+        cutoff = datetime.now() - timedelta(days=days)
+        filtered_df = news_df.copy()
+        if 'Date' in filtered_df.columns:
+            filtered_df['_parsed_date'] = filtered_df['Date'].apply(self._parse_date)
+            filtered_df = filtered_df[
+                filtered_df['_parsed_date'].notna() & (filtered_df['_parsed_date'] >= cutoff)
+            ]
+            filtered_df = filtered_df.drop(columns=['_parsed_date'])
+
+        if len(filtered_df) == 0:
+            return {
+                "overall_sentiment": "NEUTRAL",
+                "sentiment_score": 50,
+                "total_articles": 0
+            }
+
         # Convert DataFrame to article list
         articles = []
-        for _, row in news_df.iterrows():
+        for _, row in filtered_df.iterrows():
             articles.append({
                 "title": row.get('Title', ''),
                 "date": row.get('Date', ''),
@@ -229,3 +247,15 @@ class NewsSentimentAnalyzer:
                 "all_events": all_events[:10],
             },
         }
+
+    @staticmethod
+    def _parse_date(date_str) -> Optional[datetime]:
+        """Try to parse a date string in common formats."""
+        if not date_str or not isinstance(date_str, str):
+            return None
+        for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y", "%m/%d/%Y", "%B %d, %Y"):
+            try:
+                return datetime.strptime(date_str.strip(), fmt)
+            except (ValueError, TypeError):
+                continue
+        return None

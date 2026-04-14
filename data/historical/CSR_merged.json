@@ -1,17 +1,17 @@
 {
   "symbol": "CSR",
-  "scrape_timestamp": "2026-04-12T14:44:10.233918+00:00",
+  "scrape_timestamp": "2026-04-13T11:00:50.518467+00:00",
   "price": 193.0,
   "market_cap": 18236018599.0,
   "volume": 10549212,
   "high_52w": 266.0,
   "low_52w": 150.35,
-  "pe_ratio": null,
-  "dividend_yield": null,
+  "pe_ratio": 21.3,
+  "dividend_yield": 5.18,
   "price_to_book": null,
-  "consensus": null,
-  "target_price": null,
-  "num_analysts": null,
+  "consensus": "BUY",
+  "target_price": 235.0,
+  "num_analysts": 2,
   "hist_revenue": {},
   "hist_net_income": {},
   "hist_eps": {},
@@ -35,6 +35,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.369468+00:00"
+    "merged_at": "2026-04-13T13:08:26.398389+00:00"
   }
 }

@@ -1,14 +1,14 @@
 {
   "symbol": "EQD",
-  "scrape_timestamp": "2026-04-12T14:35:01.257676+00:00",
+  "scrape_timestamp": "2026-04-13T11:33:09.716896+00:00",
   "price": 1390.0,
   "market_cap": 2321647500.0,
   "volume": 3826670,
   "high_52w": 1430.0,
   "low_52w": 1040.0,
-  "pe_ratio": 18.6,
+  "pe_ratio": null,
   "dividend_yield": null,
-  "price_to_book": 1.46,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -99,6 +99,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.896420+00:00"
+    "merged_at": "2026-04-13T13:08:26.837406+00:00"
   }
 }

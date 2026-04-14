@@ -1,6 +1,6 @@
 {
   "symbol": "SAH",
-  "scrape_timestamp": "2026-04-12T15:59:07.045678+00:00",
+  "scrape_timestamp": "2026-04-13T11:14:53.598251+00:00",
   "price": 2730.0,
   "market_cap": 11239066020.0,
   "volume": 8190,
@@ -8,7 +8,7 @@
   "low_52w": 1770.0,
   "pe_ratio": 11.1,
   "dividend_yield": 5.84,
-  "price_to_book": 1.75,
+  "price_to_book": null,
   "consensus": "OUTPERFORM",
   "target_price": null,
   "num_analysts": 8,
@@ -155,6 +155,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.526693+00:00"
+    "merged_at": "2026-04-13T13:08:26.527899+00:00"
   }
 }

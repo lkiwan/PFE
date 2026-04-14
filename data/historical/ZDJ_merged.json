@@ -1,6 +1,6 @@
 {
   "symbol": "ZDJ",
-  "scrape_timestamp": "2026-04-12T15:35:48.443365+00:00",
+  "scrape_timestamp": "2026-04-13T11:41:57.575594+00:00",
   "price": 217.35,
   "market_cap": 124508730.15,
   "volume": null,
@@ -114,6 +114,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:34.021286+00:00"
+    "merged_at": "2026-04-13T13:08:26.948744+00:00"
   }
 }

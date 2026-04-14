@@ -1,6 +1,6 @@
 {
   "symbol": "HPS",
-  "scrape_timestamp": "2026-04-12T14:35:17.912981+00:00",
+  "scrape_timestamp": "2026-04-13T11:20:16.316335+00:00",
   "price": 545.0,
   "market_cap": 4036373550.0,
   "volume": 2734152,
@@ -8,7 +8,7 @@
   "low_52w": 480.0,
   "pe_ratio": 37.1,
   "dividend_yield": 1.26,
-  "price_to_book": 12.9,
+  "price_to_book": null,
   "consensus": "BUY",
   "target_price": null,
   "num_analysts": 8,
@@ -162,6 +162,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.580681+00:00"
+    "merged_at": "2026-04-13T13:08:26.574097+00:00"
   }
 }

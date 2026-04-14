@@ -1,6 +1,6 @@
 {
   "symbol": "AFI",
-  "scrape_timestamp": "2026-04-12T16:02:49.921800+00:00",
+  "scrape_timestamp": "2026-04-13T11:55:08.477189+00:00",
   "price": 350.0,
   "market_cap": 102025000.0,
   "volume": 61619,
@@ -8,7 +8,7 @@
   "low_52w": 307.0,
   "pe_ratio": 21.9,
   "dividend_yield": 5.97,
-  "price_to_book": 1.87,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -138,6 +138,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.763398+00:00"
+    "merged_at": "2026-04-13T13:08:26.729932+00:00"
   }
 }

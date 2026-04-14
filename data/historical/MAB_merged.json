@@ -1,13 +1,13 @@
 {
   "symbol": "MAB",
-  "scrape_timestamp": "2026-04-12T14:41:24.599741+00:00",
+  "scrape_timestamp": "2026-04-13T12:09:21.423613+00:00",
   "price": 890.0,
   "market_cap": 1231921980.0,
   "volume": 62300,
   "high_52w": 1001.0,
   "low_52w": 845.0,
-  "pe_ratio": null,
-  "dividend_yield": null,
+  "pe_ratio": 9.86,
+  "dividend_yield": 5.49,
   "price_to_book": null,
   "consensus": null,
   "target_price": null,
@@ -35,6 +35,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.917057+00:00"
+    "merged_at": "2026-04-13T13:08:26.856018+00:00"
   }
 }

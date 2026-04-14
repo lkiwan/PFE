@@ -1,6 +1,6 @@
 {
   "symbol": "IAM",
-  "scrape_timestamp": "2026-04-12T14:23:55.064687+00:00",
+  "scrape_timestamp": "2026-04-13T10:51:28.738375+00:00",
   "price": 96.0,
   "market_cap": 84393152640.0,
   "volume": 18084652,
@@ -8,7 +8,7 @@
   "low_52w": 90.0,
   "pe_ratio": 15.7,
   "dividend_yield": 4.36,
-  "price_to_book": 8.22,
+  "price_to_book": null,
   "consensus": "HOLD",
   "target_price": 107.33,
   "num_analysts": 3,
@@ -189,6 +189,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.256247+00:00"
+    "merged_at": "2026-04-13T13:08:26.307737+00:00"
   }
 }

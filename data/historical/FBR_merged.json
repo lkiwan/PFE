@@ -1,6 +1,6 @@
 {
   "symbol": "FBR",
-  "scrape_timestamp": "2026-04-12T15:12:41.011476+00:00",
+  "scrape_timestamp": "2026-04-13T11:35:52.848670+00:00",
   "price": 297.9,
   "market_cap": 428673333.6,
   "volume": 532130,
@@ -8,7 +8,7 @@
   "low_52w": 214.0,
   "pe_ratio": 18.8,
   "dividend_yield": null,
-  "price_to_book": 0.88,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -130,6 +130,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.950269+00:00"
+    "merged_at": "2026-04-13T13:08:26.885778+00:00"
   }
 }

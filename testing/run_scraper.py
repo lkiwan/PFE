@@ -16,9 +16,11 @@ Output:
 import asyncio
 import csv
 import sys
+import os
 import argparse
 import time
 import random
+from datetime import datetime
 
 sys.path.insert(0, '.')
 
@@ -47,6 +49,7 @@ async def scrape_one(scraper, symbol, stock_config, fetch_full=False):
             article.source or '',
             article.url or '',
             article.full_content or '',
+            datetime.now().strftime('%Y-%m-%d'),
         ))
     return rows
 
@@ -57,6 +60,7 @@ async def main():
     parser.add_argument('--all', action='store_true', help='Scrape news for all stocks')
     parser.add_argument('--full', action='store_true',
                         help='Also fetch full article content (slower)')
+    parser.add_argument('--start-from', help='Symbol to start/resume from (e.g. JET) when using --all')
     args = parser.parse_args()
 
     if not STOCKS:
@@ -77,6 +81,13 @@ async def main():
 
     elif args.all:
         targets = symbols_sorted
+        if args.start_from:
+            start_sym = args.start_from.upper()
+            if start_sym in targets:
+                targets = targets[targets.index(start_sym):]
+            else:
+                print(f"Symbol {start_sym} not found. Cannot start from it.")
+                sys.exit(1)
 
     else:
         # Interactive picker
@@ -118,12 +129,19 @@ async def main():
             config = STOCKS[sym]
             _safe_print(f"\n[{idx}/{len(targets)}] {sym} - {config['full_name']}")
 
+            # Rotate session every 10 items to prevent MarketScreener blocks
+            if idx % 10 == 0:
+                await http_client.close()
+                http_client = AsyncHTTPClient()
+                scraper = NewsScraper(http_client)
+                _safe_print("  [Rotated HTTP Session to avoid blocks]")
+
             rows = await scrape_one(scraper, sym, config, fetch_full=args.full)
             all_rows.extend(rows)
             _safe_print(f"  Found {len(rows)} articles")
 
             if idx < len(targets):
-                delay = random.uniform(2, 5)
+                delay = random.uniform(3, 7) if len(rows) > 0 else random.uniform(6, 10)
                 time.sleep(delay)
 
     except KeyboardInterrupt:
@@ -135,12 +153,36 @@ async def main():
         _safe_print("\nNo articles found.")
         return
 
-    # --- Export to CSV ---
+    # --- Deduplicate: load existing CSV, merge, deduplicate by URL ---
     csv_file = 'news_articles.csv'
+    header = ['Ticker', 'Company', 'Date', 'Title', 'Source', 'URL', 'Full_Content', 'Scraped_At']
+    existing_rows = []
+    if os.path.exists(csv_file):
+        try:
+            with open(csv_file, 'r', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                old_header = next(reader, None)
+                for row in reader:
+                    # Handle old format (7 columns) by adding empty Scraped_At
+                    if len(row) == 7:
+                        row.append('')
+                    existing_rows.append(tuple(row))
+        except Exception as e:
+            _safe_print(f"  Warning: could not read existing CSV: {e}")
+
+    # Deduplicate by URL (column index 5)
+    seen_urls = {row[5] for row in existing_rows if len(row) > 5 and row[5]}
+    new_rows = [row for row in all_rows if row[5] and row[5] not in seen_urls]
+    combined = existing_rows + new_rows
+
     with open(csv_file, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        writer.writerow(['Ticker', 'Company', 'Date', 'Title', 'Source', 'URL', 'Full_Content'])
-        writer.writerows(all_rows)
+        writer.writerow(header)
+        writer.writerows(combined)
+
+    _safe_print(f"\n  Existing articles: {len(existing_rows)}")
+    _safe_print(f"  New articles:      {len(new_rows)}")
+    _safe_print(f"  Total saved:       {len(combined)}")
 
     # --- Summary ---
     _safe_print(f"\n{'='*60}")

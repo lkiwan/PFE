@@ -1,6 +1,6 @@
 {
   "symbol": "TQM",
-  "scrape_timestamp": "2026-04-13T09:12:18.526364+00:00",
+  "scrape_timestamp": "2026-04-13T10:59:45.409950+00:00",
   "price": 1864.0,
   "market_cap": 43969042288.0,
   "volume": 2411183,
@@ -171,6 +171,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.357540+00:00"
+    "merged_at": "2026-04-13T13:08:26.388515+00:00"
   }
 }

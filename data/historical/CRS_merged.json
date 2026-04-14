@@ -1,6 +1,6 @@
 {
   "symbol": "CRS",
-  "scrape_timestamp": "2026-04-12T15:40:37.781597+00:00",
+  "scrape_timestamp": "2026-04-13T11:51:35.566548+00:00",
   "price": 30.33,
   "market_cap": 159687450.0,
   "volume": 36917,
@@ -8,7 +8,7 @@
   "low_52w": 26.0,
   "pe_ratio": 16.2,
   "dividend_yield": null,
-  "price_to_book": 1.42,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -132,6 +132,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.729706+00:00"
+    "merged_at": "2026-04-13T13:08:26.700859+00:00"
   }
 }

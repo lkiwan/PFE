@@ -1,6 +1,6 @@
 {
   "symbol": "ATL",
-  "scrape_timestamp": "2026-04-12T15:44:56.430408+00:00",
+  "scrape_timestamp": "2026-04-13T11:13:34.113566+00:00",
   "price": 136.0,
   "market_cap": 8198568920.0,
   "volume": 513086,
@@ -8,10 +8,10 @@
   "low_52w": 123.0,
   "pe_ratio": null,
   "dividend_yield": 4.41,
-  "price_to_book": 2.53,
-  "consensus": null,
-  "target_price": null,
-  "num_analysts": null,
+  "price_to_book": null,
+  "consensus": "UNDERPERFORM",
+  "target_price": 131.0,
+  "num_analysts": 2,
   "hist_revenue": {
     "2020": 4445.0,
     "2023": 5601.0,
@@ -134,6 +134,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.515683+00:00"
+    "merged_at": "2026-04-13T13:08:26.518293+00:00"
   }
 }

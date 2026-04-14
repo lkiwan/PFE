@@ -1,6 +1,6 @@
 {
   "symbol": "BCP",
-  "scrape_timestamp": "2026-04-12T14:17:17.068865+00:00",
+  "scrape_timestamp": "2026-04-13T10:49:16.434762+00:00",
   "price": 244.0,
   "market_cap": 49608243412.0,
   "volume": 16792025,
@@ -8,7 +8,7 @@
   "low_52w": 240.0,
   "pe_ratio": 10.0,
   "dividend_yield": 5.12,
-  "price_to_book": 1.6,
+  "price_to_book": null,
   "consensus": "OUTPERFORM",
   "target_price": 313.0,
   "num_analysts": 1,
@@ -116,6 +116,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.222895+00:00"
+    "merged_at": "2026-04-13T13:08:26.285150+00:00"
   }
 }

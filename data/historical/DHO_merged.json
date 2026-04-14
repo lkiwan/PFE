@@ -1,6 +1,6 @@
 {
   "symbol": "DHO",
-  "scrape_timestamp": "2026-04-12T15:18:51.590874+00:00",
+  "scrape_timestamp": "2026-04-13T11:27:56.392458+00:00",
   "price": 64.0,
   "market_cap": 5606400000.0,
   "volume": 4819030,
@@ -8,7 +8,7 @@
   "low_52w": 53.0,
   "pe_ratio": 54.8,
   "dividend_yield": null,
-  "price_to_book": 25.3,
+  "price_to_book": null,
   "consensus": "BUY",
   "target_price": null,
   "num_analysts": 49,
@@ -181,6 +181,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.674269+00:00"
+    "merged_at": "2026-04-13T13:08:26.653341+00:00"
   }
 }

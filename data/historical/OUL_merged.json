@@ -1,17 +1,17 @@
 {
   "symbol": "OUL",
-  "scrape_timestamp": "2026-04-12T15:45:30.681416+00:00",
+  "scrape_timestamp": "2026-04-13T11:45:36.116796+00:00",
   "price": 1220.0,
   "market_cap": 2415600000.0,
   "volume": null,
   "high_52w": 1320.0,
   "low_52w": 1150.0,
-  "pe_ratio": null,
-  "dividend_yield": null,
+  "pe_ratio": 27.5,
+  "dividend_yield": 1.89,
   "price_to_book": null,
-  "consensus": null,
-  "target_price": null,
-  "num_analysts": null,
+  "consensus": "BUY",
+  "target_price": 1786.0,
+  "num_analysts": 1,
   "hist_revenue": {},
   "hist_net_income": {},
   "hist_eps": {},
@@ -35,6 +35,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:34.054171+00:00"
+    "merged_at": "2026-04-13T13:08:26.976231+00:00"
   }
 }

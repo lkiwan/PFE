@@ -1,6 +1,6 @@
 {
   "symbol": "BOA",
-  "scrape_timestamp": "2026-04-12T14:27:11.903282+00:00",
+  "scrape_timestamp": "2026-04-13T10:52:35.402601+00:00",
   "price": 207.0,
   "market_cap": 45598349367.0,
   "volume": 19024266,
@@ -8,7 +8,7 @@
   "low_52w": 170.0,
   "pe_ratio": 13.0,
   "dividend_yield": 2.42,
-  "price_to_book": 1.43,
+  "price_to_book": null,
   "consensus": "UNDERPERFORM",
   "target_price": 207.0,
   "num_analysts": 1,
@@ -125,6 +125,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.273085+00:00"
+    "merged_at": "2026-04-13T13:08:26.317895+00:00"
   }
 }

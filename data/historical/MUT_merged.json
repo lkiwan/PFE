@@ -1,6 +1,6 @@
 {
   "symbol": "MUT",
-  "scrape_timestamp": "2026-04-12T15:19:58.249272+00:00",
+  "scrape_timestamp": "2026-04-13T11:28:22.838563+00:00",
   "price": 238.0,
   "market_cap": 2200723406.0,
   "volume": 987241,
@@ -9,9 +9,9 @@
   "pe_ratio": null,
   "dividend_yield": 4.41,
   "price_to_book": null,
-  "consensus": null,
-  "target_price": null,
-  "num_analysts": null,
+  "consensus": "BUY",
+  "target_price": 365.0,
+  "num_analysts": 1,
   "hist_revenue": {},
   "hist_net_income": {},
   "hist_eps": {},
@@ -35,6 +35,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.686077+00:00"
+    "merged_at": "2026-04-13T13:08:26.663277+00:00"
   }
 }

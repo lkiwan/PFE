@@ -1,6 +1,6 @@
 {
   "symbol": "VCN",
-  "scrape_timestamp": "2026-04-12T16:01:21.074599+00:00",
+  "scrape_timestamp": "2026-04-13T12:11:12.494293+00:00",
   "price": 419.0,
   "market_cap": 4298458150.0,
   "volume": 4270903,
@@ -8,7 +8,7 @@
   "low_52w": 259.55,
   "pe_ratio": 54.8,
   "dividend_yield": null,
-  "price_to_book": 25.3,
+  "price_to_book": null,
   "consensus": "BUY",
   "target_price": null,
   "num_analysts": 49,
@@ -181,6 +181,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:34.077284+00:00"
+    "merged_at": "2026-04-13T13:08:26.994207+00:00"
   }
 }

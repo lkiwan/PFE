@@ -1,6 +1,6 @@
 {
   "symbol": "LES",
-  "scrape_timestamp": "2026-04-12T15:32:56.034195+00:00",
+  "scrape_timestamp": "2026-04-13T11:29:33.832784+00:00",
   "price": 392.5,
   "market_cap": 10845367675.0,
   "volume": 168610,
@@ -175,6 +175,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.697737+00:00"
+    "merged_at": "2026-04-13T13:08:26.673075+00:00"
   }
 }

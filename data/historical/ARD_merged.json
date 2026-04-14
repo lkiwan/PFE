@@ -1,6 +1,6 @@
 {
   "symbol": "ARD",
-  "scrape_timestamp": "2026-04-12T15:38:16.572764+00:00",
+  "scrape_timestamp": "2026-04-13T11:11:00.589553+00:00",
   "price": 420.5,
   "market_cap": 5284898665.0,
   "volume": 218677,
@@ -8,7 +8,7 @@
   "low_52w": 396.0,
   "pe_ratio": null,
   "dividend_yield": 5.07,
-  "price_to_book": 1.16,
+  "price_to_book": null,
   "consensus": "BUY",
   "target_price": 578.5,
   "num_analysts": 2,
@@ -156,6 +156,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.489595+00:00"
+    "merged_at": "2026-04-13T13:08:26.498709+00:00"
   }
 }

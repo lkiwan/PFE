@@ -1,6 +1,6 @@
 {
   "symbol": "INV",
-  "scrape_timestamp": "2026-04-12T15:11:15.138117+00:00",
+  "scrape_timestamp": "2026-04-13T11:25:00.670653+00:00",
   "price": 141.95,
   "market_cap": 54326536.2,
   "volume": 41765,
@@ -8,7 +8,7 @@
   "low_52w": 89.11,
   "pe_ratio": null,
   "dividend_yield": null,
-  "price_to_book": 0.65,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -124,6 +124,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.636580+00:00"
+    "merged_at": "2026-04-13T13:08:26.623761+00:00"
   }
 }

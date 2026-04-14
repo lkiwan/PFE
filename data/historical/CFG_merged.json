@@ -1,6 +1,6 @@
 {
   "symbol": "CFG",
-  "scrape_timestamp": "2026-04-13T09:08:37.332619+00:00",
+  "scrape_timestamp": "2026-04-13T10:57:27.183900+00:00",
   "price": 208.0,
   "market_cap": 7281655680.0,
   "volume": 16098008,
@@ -8,7 +8,7 @@
   "low_52w": 195.95,
   "pe_ratio": 27.9,
   "dividend_yield": 2.33,
-  "price_to_book": 2.78,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -91,6 +91,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.334744+00:00"
+    "merged_at": "2026-04-13T13:08:26.367873+00:00"
   }
 }

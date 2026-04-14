@@ -1,6 +1,6 @@
 {
   "symbol": "SLF",
-  "scrape_timestamp": "2026-04-12T14:38:19.167582+00:00",
+  "scrape_timestamp": "2026-04-13T12:07:42.353151+00:00",
   "price": 450.0,
   "market_cap": 1405853550.0,
   "volume": 373500,
@@ -8,7 +8,7 @@
   "low_52w": 450.0,
   "pe_ratio": 17.9,
   "dividend_yield": 2.74,
-  "price_to_book": 2.22,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -100,6 +100,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.906585+00:00"
+    "merged_at": "2026-04-13T13:08:26.846706+00:00"
   }
 }

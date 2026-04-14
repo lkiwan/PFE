@@ -1,6 +1,6 @@
 {
   "symbol": "STR",
-  "scrape_timestamp": "2026-04-12T15:19:17.960673+00:00",
+  "scrape_timestamp": "2026-04-13T11:38:33.072324+00:00",
   "price": 164.1,
   "market_cap": 204881311.5,
   "volume": 129007,
@@ -114,6 +114,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.973007+00:00"
+    "merged_at": "2026-04-13T13:08:26.905961+00:00"
   }
 }

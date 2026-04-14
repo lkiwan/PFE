@@ -1,6 +1,6 @@
 {
   "symbol": "ADH",
-  "scrape_timestamp": "2026-04-12T14:30:16.856923+00:00",
+  "scrape_timestamp": "2026-04-13T10:53:40.236512+00:00",
   "price": 34.71,
   "market_cap": 13972554026.34,
   "volume": 21939521,
@@ -172,6 +172,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.287370+00:00"
+    "merged_at": "2026-04-13T13:08:26.328355+00:00"
   }
 }

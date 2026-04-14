@@ -1,6 +1,6 @@
 {
   "symbol": "SOT",
-  "scrape_timestamp": "2026-04-12T15:43:53.318362+00:00",
+  "scrape_timestamp": "2026-04-13T11:52:46.539010+00:00",
   "price": 1730.0,
   "market_cap": 13255087000.0,
   "volume": 316961,
@@ -8,7 +8,7 @@
   "low_52w": 990.0,
   "pe_ratio": 26.1,
   "dividend_yield": 1.79,
-  "price_to_book": 3.27,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -131,6 +131,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.741713+00:00"
+    "merged_at": "2026-04-13T13:08:26.710675+00:00"
   }
 }

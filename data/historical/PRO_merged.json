@@ -1,6 +1,6 @@
 {
   "symbol": "PRO",
-  "scrape_timestamp": "2026-04-12T15:59:34.851084+00:00",
+  "scrape_timestamp": "2026-04-13T11:53:59.457690+00:00",
   "price": 1410.0,
   "market_cap": 1410000000.0,
   "volume": null,
@@ -116,6 +116,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.752372+00:00"
+    "merged_at": "2026-04-13T13:08:26.720024+00:00"
   }
 }

@@ -1,6 +1,6 @@
 {
   "symbol": "NKL",
-  "scrape_timestamp": "2026-04-12T15:15:52.050616+00:00",
+  "scrape_timestamp": "2026-04-13T11:37:05.114961+00:00",
   "price": 52.0,
   "market_cap": 1560000000.0,
   "volume": 128583,
@@ -171,6 +171,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.962027+00:00"
+    "merged_at": "2026-04-13T13:08:26.896408+00:00"
   }
 }

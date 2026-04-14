@@ -1,6 +1,6 @@
 {
   "symbol": "CTM",
-  "scrape_timestamp": "2026-04-12T16:27:45.757274+00:00",
+  "scrape_timestamp": "2026-04-13T12:02:28.758210+00:00",
   "price": 900.0,
   "market_cap": 1103380200.0,
   "volume": 959191,
@@ -8,7 +8,7 @@
   "low_52w": 750.0,
   "pe_ratio": 54.8,
   "dividend_yield": null,
-  "price_to_book": 25.3,
+  "price_to_book": null,
   "consensus": "BUY",
   "target_price": null,
   "num_analysts": 49,
@@ -181,6 +181,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.835249+00:00"
+    "merged_at": "2026-04-13T13:08:26.788125+00:00"
   }
 }

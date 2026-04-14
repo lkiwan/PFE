@@ -173,7 +173,7 @@ class NewsScraper:
         # inside containers with news-related classes.
         # Strategy: find all links whose href contains /news/ and a numeric ID.
         news_link_re = re.compile(
-            rf'/quote/stock/{re.escape(url_code)}/news/[^"]*\d{{4,}}',
+            r'/news/.*-(?:\d{6,}|[a-f0-9]{15,})(?:/|\?|$)',
             re.IGNORECASE,
         )
 

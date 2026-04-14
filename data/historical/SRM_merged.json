@@ -1,6 +1,6 @@
 {
   "symbol": "SRM",
-  "scrape_timestamp": "2026-04-12T15:22:28.104473+00:00",
+  "scrape_timestamp": "2026-04-13T11:39:56.910209+00:00",
   "price": 515.0,
   "market_cap": 164800000.0,
   "volume": 5148,
@@ -8,7 +8,7 @@
   "low_52w": 376.0,
   "pe_ratio": null,
   "dividend_yield": null,
-  "price_to_book": 0.36,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -132,6 +132,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.984157+00:00"
+    "merged_at": "2026-04-13T13:08:26.915321+00:00"
   }
 }

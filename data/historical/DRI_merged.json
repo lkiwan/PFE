@@ -1,6 +1,6 @@
 {
   "symbol": "DRI",
-  "scrape_timestamp": "2026-04-12T15:37:17.433216+00:00",
+  "scrape_timestamp": "2026-04-13T11:31:27.158090+00:00",
   "price": 4280.0,
   "market_cap": 1277045000.0,
   "volume": null,
@@ -8,7 +8,7 @@
   "low_52w": 3338.0,
   "pe_ratio": 29.1,
   "dividend_yield": null,
-  "price_to_book": 2.77,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -119,6 +119,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.718222+00:00"
+    "merged_at": "2026-04-13T13:08:26.691063+00:00"
   }
 }

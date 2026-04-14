@@ -1,6 +1,6 @@
 {
   "symbol": "SNA",
-  "scrape_timestamp": "2026-04-12T15:09:28.324037+00:00",
+  "scrape_timestamp": "2026-04-13T11:34:36.926538+00:00",
   "price": 72.0,
   "market_cap": 1274050800.0,
   "volume": 1007198,
@@ -124,6 +124,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.938706+00:00"
+    "merged_at": "2026-04-13T13:08:26.875790+00:00"
   }
 }

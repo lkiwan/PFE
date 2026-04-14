@@ -1,6 +1,6 @@
 {
   "symbol": "CIH",
-  "scrape_timestamp": "2026-04-12T14:20:39.157640+00:00",
+  "scrape_timestamp": "2026-04-13T10:50:23.184885+00:00",
   "price": 380.0,
   "market_cap": 13530137120.0,
   "volume": 10650690,
@@ -123,6 +123,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.239192+00:00"
+    "merged_at": "2026-04-13T13:08:26.296194+00:00"
   }
 }

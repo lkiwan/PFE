@@ -1,6 +1,6 @@
 {
   "symbol": "TMA",
-  "scrape_timestamp": "2026-04-12T15:32:51.459654+00:00",
+  "scrape_timestamp": "2026-04-13T11:08:26.244565+00:00",
   "price": 1500.0,
   "market_cap": 13440000000.0,
   "volume": 8113947,
@@ -181,6 +181,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.454766+00:00"
+    "merged_at": "2026-04-13T13:08:26.468589+00:00"
   }
 }

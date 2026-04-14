@@ -1,6 +1,6 @@
 {
   "symbol": "IMO",
-  "scrape_timestamp": "2026-04-12T15:41:28.298513+00:00",
+  "scrape_timestamp": "2026-04-13T11:12:18.679812+00:00",
   "price": 91.0,
   "market_cap": 819637000.0,
   "volume": 224517,
@@ -134,6 +134,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.504397+00:00"
+    "merged_at": "2026-04-13T13:08:26.508564+00:00"
   }
 }

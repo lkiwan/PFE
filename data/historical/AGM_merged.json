@@ -1,6 +1,6 @@
 {
   "symbol": "AGM",
-  "scrape_timestamp": "2026-04-13T09:48:37.342478+00:00",
+  "scrape_timestamp": "2026-04-13T11:17:22.471140+00:00",
   "price": 6999.0,
   "market_cap": 1399800000.0,
   "volume": null,
@@ -137,6 +137,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.548142+00:00"
+    "merged_at": "2026-04-13T13:08:26.546317+00:00"
   }
 }

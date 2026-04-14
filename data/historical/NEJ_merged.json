@@ -1,6 +1,6 @@
 {
   "symbol": "NEJ",
-  "scrape_timestamp": "2026-04-12T14:31:56.471148+00:00",
+  "scrape_timestamp": "2026-04-13T11:19:04.834837+00:00",
   "price": 4585.0,
   "market_cap": 4691665440.0,
   "volume": null,
@@ -8,7 +8,7 @@
   "low_52w": 2064.0,
   "pe_ratio": 15.8,
   "dividend_yield": 3.81,
-  "price_to_book": 2.43,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -136,6 +136,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.569262+00:00"
+    "merged_at": "2026-04-13T13:08:26.564472+00:00"
   }
 }

@@ -1,6 +1,6 @@
 {
   "symbol": "REB",
-  "scrape_timestamp": "2026-04-12T15:38:59.941151+00:00",
+  "scrape_timestamp": "2026-04-13T11:43:13.938711+00:00",
   "price": 107.0,
   "market_cap": 18880792.0,
   "volume": 107,
@@ -55,6 +55,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:34.031593+00:00"
+    "merged_at": "2026-04-13T13:08:26.957673+00:00"
   }
 }

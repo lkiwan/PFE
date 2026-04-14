@@ -1,14 +1,14 @@
 {
   "symbol": "BAL",
-  "scrape_timestamp": "2026-04-12T14:27:29.634427+00:00",
+  "scrape_timestamp": "2026-04-13T12:04:09.352252+00:00",
   "price": 216.5,
   "market_cap": 377576000.0,
   "volume": null,
   "high_52w": 317.95,
   "low_52w": 215.0,
-  "pe_ratio": 36.3,
-  "dividend_yield": 2.97,
-  "price_to_book": 1.61,
+  "pe_ratio": null,
+  "dividend_yield": null,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -135,6 +135,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.857781+00:00"
+    "merged_at": "2026-04-13T13:08:26.806788+00:00"
   }
 }

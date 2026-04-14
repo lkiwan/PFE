@@ -1,6 +1,6 @@
 {
   "symbol": "GAZ",
-  "scrape_timestamp": "2026-04-13T09:33:06.251820+00:00",
+  "scrape_timestamp": "2026-04-13T11:07:11.922947+00:00",
   "price": 3744.0,
   "market_cap": 12870000000.0,
   "volume": 792410,
@@ -10,7 +10,7 @@
   "dividend_yield": 4.54,
   "price_to_book": null,
   "consensus": "OUTPERFORM",
-  "target_price": null,
+  "target_price": 4409.0,
   "num_analysts": 1,
   "hist_revenue": {
     "2021": 7132.0,
@@ -174,6 +174,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.443552+00:00"
+    "merged_at": "2026-04-13T13:08:26.458670+00:00"
   }
 }

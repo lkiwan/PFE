@@ -1,6 +1,6 @@
 {
   "symbol": "M2M",
-  "scrape_timestamp": "2026-04-12T14:53:53.349607+00:00",
+  "scrape_timestamp": "2026-04-13T11:23:14.658000+00:00",
   "price": 418.0,
   "market_cap": 270770786.0,
   "volume": 6688,
@@ -8,7 +8,7 @@
   "low_52w": 394.25,
   "pe_ratio": null,
   "dividend_yield": null,
-  "price_to_book": 2.03,
+  "price_to_book": null,
   "consensus": null,
   "target_price": null,
   "num_analysts": null,
@@ -120,6 +120,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.613741+00:00"
+    "merged_at": "2026-04-13T13:08:26.603721+00:00"
   }
 }

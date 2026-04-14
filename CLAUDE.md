@@ -184,8 +184,10 @@ PostgreSQL (ai.predictions table)
 - [x] 1.1 — **FIXED** MarketScreener scraper data quality issue (2026-04-05)
   - Created V2/V3 scrapers + Data Merger (100% quality)
   - **Action**: Use `python core/data_merger.py IAM`
-- [x] 1.2 — News scraper `testing/run_scraper.py` ✅ Working
-  - Produces `testing/news_articles.csv` (20 articles)
+- [x] 1.2 — News scraper `testing/run_scraper.py` ✅ Working (Enhanced 2026-04-13)
+  - Fixed MarketScreener URL format changes (hash-based IDs), unlocking news scraping for all 80 stocks.
+  - Added session rotation and `--start-from` failover logic to bypass Cloudflare bans.
+  - Produces `testing/news_articles.csv` (1340+ articles across 80 stocks)
   - Note: `full_content` is null but headlines work for sentiment
 - [x] 1.3 — IAM daily price CSVs ✅ Verified
   - Bourse Casa scraper produces complete OHLCV data
@@ -194,6 +196,8 @@ PostgreSQL (ai.predictions table)
 - [x] 1.5 — Bourse de Casablanca Scraper ✅ Working
   - Supports `--symbol IAM` and `--all` flags
 - [x] 1.6 — MarketScreener Financials Scraper ✅ Replaced by V2/V3 + merger
+- [x] 1.7 — Instruments Config populated ✅ Fixed (2026-04-13)
+  - Replaced manual `null` values and incorrect `AMD` fallbacks with 80 precise MarketScreener URL codes.
 
 ### Phase 2: Normalization ✅ WIRED
 
@@ -249,7 +253,7 @@ PostgreSQL (ai.predictions table)
 |------|------|------------|
 | `data/historical/IAM_merged.json` | **Financial fundamentals (100% quality)** ⭐ | `core/data_merger.py` |
 | `data/historical/IAM_bourse_casa_full.csv` | Daily OHLCV (3+ years) | `scrapers/bourse_casa_scraper.py` |
-| `testing/news_articles.csv` | News headlines (20-50 articles) | `testing/run_scraper.py` |
+| `testing/news_articles.csv` | News headlines (1340+ articles for 80 stocks) | `testing/run_scraper.py` |
 
 ### Intermediate/Legacy Files
 

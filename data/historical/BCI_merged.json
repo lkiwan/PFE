@@ -1,6 +1,6 @@
 {
   "symbol": "BCI",
-  "scrape_timestamp": "2026-04-12T14:30:38.349738+00:00",
+  "scrape_timestamp": "2026-04-13T12:05:55.280025+00:00",
   "price": 608.0,
   "market_cap": 8073805888.0,
   "volume": 32169,
@@ -8,7 +8,7 @@
   "low_52w": 470.0,
   "pe_ratio": 54.8,
   "dividend_yield": null,
-  "price_to_book": 25.3,
+  "price_to_book": null,
   "consensus": "BUY",
   "target_price": null,
   "num_analysts": 49,
@@ -181,6 +181,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T10:09:33.873964+00:00"
+    "merged_at": "2026-04-13T13:08:26.817391+00:00"
   }
 }
