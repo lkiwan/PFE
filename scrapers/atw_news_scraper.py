@@ -49,6 +49,10 @@ DEFAULT_OUT = _ROOT / "data" / "historical" / "ATW_news.csv"
 STATE_FILE = _ROOT / "data" / "scrapers" / "atw_news_state.json"
 TICKER = "ATW"
 
+import sys
+sys.path.insert(0, str(_ROOT))
+from db.writer import upsert_news
+
 # Medias24 WP REST tag id for ATW articles (discovered via /wp-json/wp/v2/tags?search=attijariwafa).
 # Tag id 8987, slug "attijariwafa-bank", 128+ posts. Much cleaner than scraping
 # the topic HTML page — returns clean JSON with structured date/title/excerpt/link.
@@ -1091,6 +1095,39 @@ def save_csv(articles: list[dict], path: Path) -> None:
         w.writeheader()
         for a in articles:
             w.writerow({k: _flatten(a.get(k, "")) for k in CSV_FIELDS})
+    _upsert_articles_to_db(articles)
+
+
+def _upsert_articles_to_db(articles: list[dict]) -> None:
+    """Mirror CSV rows to md.news_articles. Fail-open via db.writer."""
+    rows = []
+    for a in articles:
+        url = (a.get("url") or "").strip()
+        title = (a.get("title") or "").strip()
+        if not url or not title:
+            continue
+        signal = a.get("signal_score")
+        try:
+            signal = int(signal) if signal not in (None, "") else 0
+        except (TypeError, ValueError):
+            signal = 0
+        core = a.get("is_atw_core")
+        try:
+            core = bool(int(core)) if core not in (None, "") else False
+        except (TypeError, ValueError):
+            core = bool(core)
+        rows.append({
+            "publish_date": a.get("date") or None,
+            "title": title,
+            "source": a.get("source") or None,
+            "url": url,
+            "full_content": a.get("full_content") or None,
+            "query_source": a.get("query_source") or None,
+            "signal_score": signal,
+            "is_atw_core": core,
+        })
+    if rows:
+        upsert_news(TICKER, rows)
 
 
 def enrich_with_bodies(

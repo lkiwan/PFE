@@ -14,6 +14,7 @@ Usage:
 
 import csv
 import json
+import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
@@ -21,6 +22,40 @@ from datetime import datetime, timezone
 # Paths
 _ROOT = Path(__file__).resolve().parent.parent
 V3_DATA_DIR = _ROOT / "data" / "historical"
+
+sys.path.insert(0, str(_ROOT))
+from db.writer import upsert_fundamentals
+
+_FUND_SCALAR_COLS = {
+    "price", "market_cap", "pe_ratio", "price_to_book",
+    "dividend_yield", "target_price", "consensus",
+    "num_analysts", "high_52w", "low_52w",
+}
+
+
+def _upsert_merged_to_db(symbol: str, flat: Dict[str, Any]) -> None:
+    """Mirror merged fundamentals JSON to md.fundamentals. Fail-open."""
+    scrape_ts = flat.get("scrape_timestamp")
+    if not scrape_ts:
+        return
+    hist_json = {
+        k: v for k, v in flat.items()
+        if k not in _FUND_SCALAR_COLS and k != "scrape_timestamp"
+    }
+    upsert_fundamentals(symbol, {
+        "scrape_ts": scrape_ts,
+        "price": flat.get("price"),
+        "market_cap": flat.get("market_cap"),
+        "pe_ratio": flat.get("pe_ratio"),
+        "price_to_book": flat.get("price_to_book"),
+        "dividend_yield": flat.get("dividend_yield"),
+        "target_price": flat.get("target_price"),
+        "consensus": flat.get("consensus"),
+        "num_analysts": flat.get("num_analysts"),
+        "high_52w": flat.get("high_52w"),
+        "low_52w": flat.get("low_52w"),
+        "hist_json": hist_json,
+    })
 
 
 def _safe_float(value: Any) -> Optional[float]:
@@ -268,6 +303,7 @@ def _merge_one(symbol: str, verbose: bool = True) -> bool:
         with open(output_file, 'w') as f:
             json.dump(data, f, indent=2)
         print(f"  Saved to: {output_file.name}")
+        _upsert_merged_to_db(symbol, data)
         return True
     except FileNotFoundError as e:
         print(f"  SKIP {symbol}: {e}")

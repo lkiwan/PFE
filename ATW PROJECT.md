@@ -1,6 +1,6 @@
 # ATW Project — Handoff Document
 
-**Date of this snapshot:** 2026-04-15 (updated: news scraper dates — MarketScreener `data-utc-date`, article-page date extraction for Boursenews/L'Économiste, IR Attijariwafa + Attijari CIB sources removed, `snippet` column dropped, CSV rows flattened to one-line-per-article)
+**Date of this snapshot:** 2026-04-16 (updated: 2026-04-16 ATW daily/realtime refresh, news backfill/verification workflow, macro context collector + `ATW_macro_morocco.csv`)
 **Purpose:** anything a fresh Claude session needs to pick up where we left off. Read this before `CLAUDE.md` — `CLAUDE.md` still carries IAM-era content mixed with the pivot note, so this file is the source of truth for the current ATW state.
 
 ---
@@ -93,8 +93,11 @@ run_autopilot.py            → entry point, parses response, writes to ai.predi
 |---|---|
 | `scrapers/atw_news_scraper.py` | **Main deliverable.** RSS + direct HTML scraping, body extraction, strict ISO dates, ticker column |
 | `scrapers/atw_realtime_scraper.py` | **Session 2026-04-15.** Intraday snapshots + orderbook via Medias24 JSON API, EOD finalize → bourse_casa CSV schema |
+| `scrapers/atw_macro_collector.py` | **Session 2026-04-16.** Builds ATW macro/market context CSV from FRED + World Bank + IMF + yfinance |
 | `data/scrapers/atw_realtime_state.json` | Realtime scraper state (debounce, finalized_days, last-snapshot counters) |
 | `data/scrapers/atw_news_state.json` | News scraper state (seen_urls, per_source_last_seen, failed_body_urls, gnews_resolved) |
+| `data/historical/ATW_macro_morocco.csv` | Daily macro context dataset used for ATW monitoring (merged + ffilled where needed) |
+| `run_verify.py`, `inline_analysis.py`, `final_analysis.py`, `analyze_csv_standalone.py` | One-shot verification helpers for ATW news CSV quality checks |
 | `ATW PROJECT.md` (this file) | Handoff doc |
 
 ### Rewritten / significantly changed
@@ -198,18 +201,20 @@ Before/after on the same CSV: `NEUTRAL 38` → `POSITIVE 73.5`. Events detected 
 
 ---
 
-## 7. Data state (2026-04-15)
+## 7. Data state (2026-04-16)
 
 | File | Rows | Status |
 |---|---|---|
-| `data/historical/ATW_bourse_casa_full.csv` | 748 | Up to 2026-04-15 (includes row finalized from realtime scraper) |
+| `data/historical/ATW_bourse_casa_full.csv` | 750 | Up to 2026-04-16 (includes row finalized from realtime scraper) |
 | `data/historical/ATW_merged.json` | - | 100% quality, fundamentals |
 | `data/historical/ATW_marketscreener_v3.json` | - | V3 raw |
-| `data/historical/ATW_news.csv` | 166 | 100% with date, 100% with `full_content`. One article per CSV line. |
-| `data/historical/ATW_intraday_2026-04-15.csv` | - | Realtime snapshots (one row per `snapshot` call) |
-| `data/historical/ATW_orderbook_2026-04-15.csv` | - | 5-level bid/ask per snapshot |
-| `data/scrapers/atw_news_state.json` | 323 URLs | Incremental state |
-| `data/scrapers/atw_realtime_state.json` | - | Debounce + finalized_days |
+| `data/historical/ATW_news.csv` | 316 | Backfilled + deduped incremental corpus, one article per CSV line |
+| `data/historical/ATW_intraday_2026-04-16.csv` | 1 | Realtime snapshots (one row per `snapshot` call) |
+| `data/historical/ATW_orderbook_2026-04-16.csv` | 2 | 5-level bid/ask per snapshot |
+| `data/historical/ATW_technicals_2026-04-16.json` | 1 object | Technical snapshot generated from refreshed EOD/intraday data |
+| `data/historical/ATW_macro_morocco.csv` | 5950 | Daily macro/market context rows (2010-01-01 → 2026-04-16) |
+| `data/scrapers/atw_news_state.json` | 319 URLs | Incremental state (`last_full_run_ts`: 2026-04-16T15:01:24+00:00) |
+| `data/scrapers/atw_realtime_state.json` | - | Debounce + `finalized_days`: 2026-04-15, 2026-04-16 |
 
 ---
 
@@ -219,7 +224,7 @@ Before/after on the same CSV: `NEUTRAL 38` → `POSITIVE 73.5`. Events detected 
 # 1. Refresh data (daily)
 python scrapers/bourse_casa_scraper.py --symbol ATW       # EOD OHLCV
 python core/data_merger.py ATW                             # Fundamentals (weekly is fine)
-python scrapers/atw_news_scraper.py                        # News — FAST path, ~25s, no flags
+python scrapers/atw_news_scraper.py                        # News — incremental + cache-aware
 
 # 1b. Intraday (user schedules externally, ≤15 min cadence, trading hours)
 python scrapers/atw_realtime_scraper.py snapshot           # Per-tick snapshot
@@ -227,6 +232,9 @@ python scrapers/atw_realtime_scraper.py finalize           # Once after 15:30 Ca
 
 # 1c. News with deep enrichment (weekly or on demand)
 python scrapers/atw_news_scraper.py --deep                 # Adds gnews + body fetch (~1-2 min warm)
+
+# 1d. Optional macro context refresh (requires FRED_API_KEY in .env)
+python scrapers/atw_macro_collector.py                     # Writes data/historical/ATW_macro_morocco.csv
 
 # 2. Smoke tests
 python quick_test.py                # company name + price
@@ -340,27 +348,23 @@ Three layered caches in `enrich_with_bodies()`:
 
 Tag ID 8987 (slug `attijariwafa-bank`) was discovered via `/wp-json/wp/v2/tags?search=attijariwafa` — more precise than the generic category 12575 (ECONOMIE) initially suggested in the user's message.
 
-### 9.5.4 Fast-by-default news scraper
+### 9.5.4 News scraper execution modes (updated 2026-04-16)
 
-**Issue after 9.5.1-9.5.3:** even with all the state caching, the first warm-up run still took 10+ min because Google News URL resolution is 189 × 2-3s = ~9 min, happening BEFORE the cache check (gnewsdecoder has to run to know if the resolved URL is in cache). User killed three consecutive runs out of frustration.
-
-**Root insight:** the 6 direct scrapers already produce 150+ ATW-specific articles — more than enough for sentiment. Google News is discovery fallback for international coverage, not a daily need. Body enrichment is a nice-to-have (sentiment engine falls back to title-only at `news_sentiment.py:214`).
-
-**Solution — flip defaults.** Everything slow is now opt-in:
+Google News is still the expensive part. Direct-source scraping + local CSV/state merge is now the normal path, and mode selection is explicit from CLI flags:
 
 | Flag | Effect | Default |
 |---|---|---|
-| (none) | Direct scrapers only, no body fetch — fast path | **active** |
+| (none) | Direct sources; body enrichment cache-aware on discovered rows | **active** |
+| `--no-bodies` | Skip body enrichment (fastest listing-only run) | off |
 | `--with-gnews` | Add Google News RSS + gnewsdecoder resolution | off |
-| `--with-bodies` | Enable trafilatura body enrichment | off |
+| `--with-bodies` | Explicitly force body enrichment | on (default) |
 | `--deep` | `--with-gnews --with-bodies` | off |
-| `--body-limit N` | Implies `--with-bodies`, caps new fetches | none |
+| `--body-limit N` | Cap new body fetches per run | none |
 | `--full-refresh` | Ignore state, rescrape everything | off |
+| `--backfill-existing` | Reprocess existing CSV only (no network scrape) | off |
 | `--since YYYY-MM-DD` | Date filter | none |
 
-Log line at start declares the mode explicitly (`Mode: direct sources only, no body fetch (fast path)`).
-
-**Verified runtime on 2026-04-15**: default run completes in **25.1 seconds** with 332 rows preserved + ~150 items re-scraped. Matches the plan's <30s target.
+Log line at start declares the active mode (`direct sources only...`, with/without gnews and with/without body fetch), so behavior is visible in runtime output.
 
 ### 9.5.5 Lessons (what to keep in mind)
 
@@ -369,6 +373,34 @@ Log line at start declares the mode explicitly (`Mode: direct sources only, no b
 3. **Caches need teeth.** A cache that gets wiped on the next run is worse than no cache — it hides the real cost. Always test: "does a killed run lose progress?" and "does a flag that skips work also preserve what was there?"
 4. **Default to fast.** Opt-in to slow. Users kill runs that feel frozen; they rarely notice runs that finish quickly.
 5. **Verify the "fast path" actually got fast.** `time` the default run after every change. Target numbers in the plan, check them in verification.
+
+---
+
+## 9.6. Session 2026-04-16 — what was done
+
+### 9.6.1 Daily ATW refresh finalized for 2026-04-16
+
+- Realtime snapshot/finalize flow produced fresh intraday + orderbook + technical outputs for 2026-04-16.
+- `data/historical/ATW_bourse_casa_full.csv` now includes the 2026-04-16 session.
+- `data/scrapers/atw_realtime_state.json` confirms idempotent finalize tracking with:
+  - `finalized_days = ["2026-04-15", "2026-04-16"]`
+  - last snapshot counters/prices persisted.
+
+### 9.6.2 Macro context collector added
+
+- Added `scrapers/atw_macro_collector.py` to build a daily Morocco macro/market context dataset for ATW.
+- Sources merged in one pipeline:
+  - FRED (`fredapi`, requires `FRED_API_KEY`)
+  - World Bank indicators
+  - IMF DataMapper
+  - yfinance market series
+- Output file: `data/historical/ATW_macro_morocco.csv` (daily frame, sparse-column pruning, append-safe writes).
+
+### 9.6.3 News CSV backfill + verification workflow
+
+- News dataset was reprocessed and saved as `data/historical/ATW_news.csv` (current 316 data rows).
+- Incremental state persisted in `data/scrapers/atw_news_state.json` (`last_full_run_ts` updated on 2026-04-16).
+- Verification helpers were added (`run_verify.py`, `inline_analysis.py`, `final_analysis.py`, `analyze_csv_standalone.py`) to quickly inspect duplicates/noise/schema after backfill runs.
 
 ---
 

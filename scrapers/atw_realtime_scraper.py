@@ -77,6 +77,12 @@ try:
 except ImportError:
     HAS_CLOUDSCRAPER = False
 
+# DB writer (fail-open; scraper survives if Postgres is down)
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from db.writer import (
+    upsert_intraday, upsert_orderbook, upsert_technicals, upsert_prices,
+)
+
 
 # --- Paths & constants -------------------------------------------------------
 
@@ -410,6 +416,21 @@ def _csv_has_day(path: Path, day: str) -> bool:
 def write_intraday(snap: Snapshot, day: str) -> Path:
     path = DATA_DIR / f"ATW_intraday_{day}.csv"
     _append_row(path, INTRADAY_FIELDS, asdict(snap))
+    upsert_intraday(TICKER, [{
+        "snapshot_ts": snap.timestamp,
+        "cotation_ts": snap.cotation or None,
+        "market_status": snap.market_status,
+        "last_price": snap.last_price,
+        "open": snap.open,
+        "high": snap.high,
+        "low": snap.low,
+        "prev_close": snap.prev_close,
+        "variation_pct": snap.variation_pct,
+        "shares_traded": snap.shares_traded,
+        "value_traded_mad": snap.value_traded_mad,
+        "num_trades": snap.num_trades,
+        "market_cap": snap.market_cap,
+    }])
     return path
 
 
@@ -426,6 +447,12 @@ def write_orderbook(ob: OrderBook, day: str) -> Path:
         row[f"ask{i}_qty"]    = a.get("qty", "")
         row[f"ask{i}_orders"] = a.get("orders", "")
     _append_row(path, ORDERBOOK_FIELDS, row)
+    db_row = {"snapshot_ts": ob.timestamp}
+    for k, v in row.items():
+        if k == "timestamp":
+            continue
+        db_row[k] = None if v == "" else v
+    upsert_orderbook(TICKER, [db_row])
     return path
 
 
@@ -479,6 +506,12 @@ def _append_technicals_snapshot(
     history.append(entry)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(history, f, indent=2, ensure_ascii=False)
+    upsert_technicals(TICKER, {
+        "as_of_date": technicals.get("as_of_date") or day,
+        "trend": technicals.get("trend"),
+        "last_close": technicals.get("last_close"),
+        "technicals_json": technicals,
+    })
     return path
 
 
@@ -654,6 +687,18 @@ def cmd_finalize(args) -> int:
         return 0
 
     _append_row(target_path, target_fields, eod)
+    upsert_prices(TICKER, [{
+        "trade_date": day,
+        "open": _to_float(eod.get("Ouverture")),
+        "close": _to_float(eod.get("Dernier Cours")),
+        "high": _to_float(eod.get("+haut du jour")),
+        "low": _to_float(eod.get("+bas du jour")),
+        "shares_traded": _to_float(eod.get("Nombre de titres échangés")),
+        "value_traded_mad": _to_float(eod.get("Volume des échanges")),
+        "num_trades": _to_int(eod.get("Nombre de transactions")),
+        "market_cap": _to_float(eod.get("Capitalisation")),
+        "source": eod.get("source") or "realtime_finalize",
+    }])
     logger.info(
         "Finalized ATW %s @ %s (%s): O=%s C=%s H=%s L=%s Vshares=%s Trades=%s -> %s",
         day, eod["scraped_at"], eod["source"],

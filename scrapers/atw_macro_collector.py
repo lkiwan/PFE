@@ -37,8 +37,37 @@ try:
 except ImportError:
     load_dotenv = None
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from db.writer import upsert_macro
+
 
 logger = logging.getLogger("atw_macro_collector")
+
+
+def _upsert_macro_df(df: pd.DataFrame) -> None:
+    """Mirror macro CSV rows to md.macro_morocco. Fail-open."""
+    if df.empty:
+        return
+    macro_cols = [
+        "frequency_tag", "bank_roe", "gdp_growth_pct",
+        "external_debt_pct_gdp", "current_account_pct_gdp",
+        "public_debt_pct_gdp", "gdp_per_capita_usd",
+        "inflation_cpi_pct", "residential_property_idx",
+        "gdp_ci", "gdp_sn", "gdp_cm", "gdp_tn",
+    ]
+    dfc = df.copy()
+    for c in macro_cols:
+        if c not in dfc.columns:
+            dfc[c] = None
+    dfc["date"] = pd.to_datetime(dfc["date"], errors="coerce").dt.date
+    dfc = dfc.dropna(subset=["date"])
+    rows = dfc[["date"] + macro_cols].where(dfc.notna(), None).to_dict(orient="records")
+    BATCH = 1000
+    total = 0
+    for i in range(0, len(rows), BATCH):
+        total += upsert_macro(rows[i:i + BATCH])
+    logger.info("DB: wrote %d rows to md.macro_morocco", total)
 
 _ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = _ROOT / "data" / "historical"
@@ -477,6 +506,7 @@ def write_output(df: pd.DataFrame, out_path: Path, full_refresh: bool) -> pd.Dat
         combined = df.copy()
 
     combined.to_csv(out_path, index=False)
+    _upsert_macro_df(combined)
     return combined
 
 
