@@ -12,8 +12,11 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 
 
-# Sentiment word lists (finance-specific)
+# Sentiment word lists (finance-specific, EN + FR).
+# Matching is token-based (see TOKEN_RE below) — each entry is an exact word,
+# not a substring. Keep accented forms as-is; the tokenizer preserves them.
 POSITIVE_WORDS = {
+    # --- English ---
     # Growth & Performance
     "growth", "grows", "grew", "increase", "increases", "increased", "rise", "rises",
     "rose", "gain", "gains", "gained", "profit", "profits", "profitable", "profitability",
@@ -26,16 +29,52 @@ POSITIVE_WORDS = {
     # Dividends & Shareholder value
     "dividend", "dividends", "payout", "buyback", "repurchase", "reward",
     # Analyst sentiment
-    "upgrade", "upgrades", "upgraded", "buy", "overweight", "outperform",
+    "upgrade", "upgrades", "upgraded", "buy", "overweight",
     "target", "raise", "raises", "raised", "recommend", "positive", "optimistic",
     "bullish", "attractive", "opportunity", "upside",
     # Business
     "partnership", "deal", "contract", "launch", "launches", "launched",
     "innovation", "innovative", "winning", "award", "leader", "leadership",
     "milestone", "success", "successful", "approve", "approved", "approval",
+
+    # --- French ---
+    # Croissance / performance
+    "hausse", "hausses", "haussier", "haussière",
+    "monter", "monte", "montent", "monté",
+    "progresse", "progression", "progressé", "progressent",
+    "bondit", "bondissent", "bondir", "bondissement",
+    "grimpe", "grimpent", "grimper",
+    "croître", "croissance", "croît",
+    "augmente", "augmentation", "augmenté", "augmentent",
+    "dépasse", "dépassé", "dépassent", "dépasser",
+    "record", "records",
+    "robuste", "solide", "fort", "forte", "dynamique",
+    "accélère", "accélération", "accélérer",
+    # Résultats / beats
+    "surperforme", "surperformance", "surperformer",
+    "battre", "bat",
+    "excède", "excédant",
+    "bénéfice", "bénéfices", "bénéficiaire",
+    # Dividendes
+    "dividende", "dividendes", "versement", "versements", "rendement",
+    # Analystes / recommandations (le signal clé côté ATW)
+    "relève", "relevé", "relever",
+    "renforce", "renforcer", "renforcement",
+    "achat", "acheter",
+    "surpondérer", "surpondération",
+    "recommande", "recommandation", "recommandations",
+    "optimiste", "attrayant", "attrayante",
+    "opportunité", "opportunités", "potentiel",
+    # Affaires
+    "partenariat", "partenariats", "accord", "accords", "contrat", "contrats",
+    "lancement", "lance", "lancent",
+    "innovation", "leader",
+    "succès", "réussi", "réussite",
+    "approuvé", "approbation", "agrément",
 }
 
 NEGATIVE_WORDS = {
+    # --- English ---
     # Decline & Loss
     "decline", "declines", "declined", "decrease", "decreases", "decreased",
     "fall", "falls", "fell", "drop", "drops", "dropped", "loss", "losses",
@@ -54,24 +93,76 @@ NEGATIVE_WORDS = {
     "cut", "cuts", "reduction", "suspend", "suspends", "suspended",
     "bearish", "sell", "underweight", "reduce", "downside",
     # Regulatory
-    "regulation", "regulatory", "sanction", "sanctions", "ban", "banned",
+    "regulation", "regulatory", "sanction", "sanctions", "banned",
+
+    # --- French ---
+    # Déclin
+    "baisse", "baisses", "baissier", "baissière",
+    "chute", "chutes", "chutent", "chuter", "chuté",
+    "plonge", "plongent", "plongé", "plonger",
+    "recule", "reculé", "recul", "reculent",
+    "effondre", "effondrement", "effondrent",
+    "dégringole", "dégringolade",
+    "diminue", "diminution", "diminuent",
+    "perte", "pertes", "perdu",
+    "manque", "manqué", "raté", "râté",
+    "faiblit", "faible", "faibles", "pauvre",
+    "déçoit", "décevant", "décevante", "décevants",
+    # Risques / problèmes
+    "risque", "risques", "risqué",
+    "avertissement", "alerte", "alertes",
+    "préoccupation", "préoccupant", "préoccupations",
+    "menace", "menaces",
+    "crise", "crises",
+    "problème", "problèmes", "difficulté", "difficultés",
+    # Détresse financière
+    "dette", "dettes", "défaut", "faillite", "restructuration",
+    "licenciement", "licenciements",
+    "suspension", "suspendu",
+    "vendre", "réduction", "sous-pondérer",
+    # Réglementaire / judiciaire
+    "amende", "amendes",
+    "interdiction", "interdit", "interdits",
+    "fraude", "fraudes", "scandale", "scandales",
+    "enquête", "enquêtes", "poursuite", "poursuites",
+    "litige", "litiges",
+    "condamné", "condamnation", "condamnations",
+    "usurpation",
 }
+
+# Tokenizer — matches English and French letters (including accented ones).
+# Used by analyze() below for exact-word sentiment matching, which avoids
+# substring false positives like "ban" inside "banque".
+TOKEN_RE = re.compile(r"[a-zàâäéèêëïîôöùûüç]+", re.IGNORECASE)
 
 # Event categories and their keywords
 EVENT_CATEGORIES = {
     "earnings": ["earnings", "results", "revenue", "profit", "income", "quarter", "annual",
-                 "financial results", "fiscal", "eps", "ebitda"],
-    "dividend": ["dividend", "payout", "distribution", "ex-dividend", "yield"],
+                 "financial results", "fiscal", "eps", "ebitda",
+                 "résultats", "chiffre d'affaires", "bénéfice", "trimestre",
+                 "trimestriel", "annuel", "exercice", "rnpg", "pnb"],
+    "dividend": ["dividend", "payout", "distribution", "ex-dividend", "yield",
+                 "dividende", "distribution", "rendement"],
     "management": ["ceo", "cfo", "chairman", "director", "appoint", "resign", "management",
-                   "board", "executive", "leadership"],
+                   "board", "executive", "leadership",
+                   "pdg", "directeur général", "président", "conseil d'administration",
+                   "nomination", "démission"],
     "merger_acquisition": ["merger", "acquisition", "acquire", "takeover", "bid", "deal",
-                          "joint venture", "partnership", "stake", "shareholding"],
+                          "joint venture", "partnership", "stake", "shareholding",
+                          "fusion", "acquisition", "rachat", "prise de participation",
+                          "coentreprise", "partenariat"],
     "regulatory": ["regulation", "regulatory", "license", "compliance", "antitrust",
-                   "government", "ministry", "authority", "approval", "permit"],
+                   "government", "ministry", "authority", "approval", "permit",
+                   "réglementation", "ammc", "autorisation", "agrément",
+                   "conformité", "ministère", "autorité"],
     "expansion": ["launch", "expand", "expansion", "new market", "5g", "fiber", "network",
-                  "infrastructure", "investment", "deploy", "rollout"],
+                  "infrastructure", "investment", "deploy", "rollout",
+                  "expansion", "déploiement", "lancement", "investissement",
+                  "réseau", "agences"],
     "market": ["stock", "share", "market", "trading", "index", "bourse", "casablanca",
-               "masi", "analyst", "rating", "target price"],
+               "masi", "analyst", "rating", "target price",
+               "action", "marché", "analyste", "recommandation",
+               "cours cible", "objectif de cours"],
 }
 
 
@@ -163,9 +254,11 @@ class NewsSentimentAnalyzer:
             snippet = article.get("snippet", "") or ""
             text = f"{title} {snippet}".lower()
 
-            # Sentiment scoring
-            pos_count = sum(1 for w in POSITIVE_WORDS if w in text)
-            neg_count = sum(1 for w in NEGATIVE_WORDS if w in text)
+            # Token-based sentiment scoring — avoids substring false positives
+            # such as "ban" matching inside "banque" on every ATW article.
+            tokens = {m.group(0) for m in TOKEN_RE.finditer(text)}
+            pos_count = len(POSITIVE_WORDS & tokens)
+            neg_count = len(NEGATIVE_WORDS & tokens)
 
             if pos_count > neg_count:
                 sentiment = "positive"
@@ -253,9 +346,17 @@ class NewsSentimentAnalyzer:
         """Try to parse a date string in common formats."""
         if not date_str or not isinstance(date_str, str):
             return None
+        s = date_str.strip()
+        try:
+            dt = datetime.fromisoformat(s)
+            if dt.tzinfo is not None:
+                dt = dt.replace(tzinfo=None)
+            return dt
+        except ValueError:
+            pass
         for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y", "%m/%d/%Y", "%B %d, %Y"):
             try:
-                return datetime.strptime(date_str.strip(), fmt)
+                return datetime.strptime(s, fmt)
             except (ValueError, TypeError):
                 continue
         return None

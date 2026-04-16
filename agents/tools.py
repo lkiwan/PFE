@@ -250,16 +250,46 @@ def load_price_data(symbol: str) -> Optional[pd.DataFrame]:
 
 
 def load_news_data(symbol: str = None) -> Optional[pd.DataFrame]:
-    """Load scraped news articles, optionally filtered by symbol."""
+    """Load scraped news articles.
+
+    Prefers per-symbol CSV at data/historical/{SYMBOL}_news.csv (new format
+    produced by scrapers/atw_news_scraper.py and similar per-ticker scrapers).
+    Falls back to the legacy testing/news_articles.csv (mixed-tickers) file.
+
+    The sentiment analyzer expects columns Title / Date / Full_Content — we
+    normalize new-format columns (title / date / snippet) to match.
+    """
     try:
-        news_path = _ROOT / "testing" / "news_articles.csv"
-        if not news_path.exists():
-            return None
-        df = pd.read_csv(news_path)
-        if symbol and 'Ticker' in df.columns:
-            filtered = df[df['Ticker'].str.upper() == symbol.upper()]
-            if len(filtered) > 0:
-                return filtered
+        df = None
+        if symbol:
+            per_symbol = _ROOT / "data" / "historical" / f"{symbol.upper()}_news.csv"
+            if per_symbol.exists():
+                df = pd.read_csv(per_symbol)
+                rename_map = {}
+                if 'title' in df.columns and 'Title' not in df.columns:
+                    rename_map['title'] = 'Title'
+                if 'date' in df.columns and 'Date' not in df.columns:
+                    rename_map['date'] = 'Date'
+                if 'ticker' in df.columns and 'Ticker' not in df.columns:
+                    rename_map['ticker'] = 'Ticker'
+                # Prefer full_content (extracted body) over snippet (RSS summary).
+                if 'full_content' in df.columns and 'Full_Content' not in df.columns:
+                    rename_map['full_content'] = 'Full_Content'
+                elif 'snippet' in df.columns and 'Full_Content' not in df.columns:
+                    rename_map['snippet'] = 'Full_Content'
+                if rename_map:
+                    df = df.rename(columns=rename_map)
+
+        if df is None:
+            legacy = _ROOT / "testing" / "news_articles.csv"
+            if not legacy.exists():
+                return None
+            df = pd.read_csv(legacy)
+            if symbol and 'Ticker' in df.columns:
+                filtered = df[df['Ticker'].str.upper() == symbol.upper()]
+                if len(filtered) > 0:
+                    df = filtered
+
         return df if len(df) > 0 else None
     except Exception as e:
         logging.warning(f"Could not load news data: {e}")
@@ -270,7 +300,7 @@ def load_news_data(symbol: str = None) -> Optional[pd.DataFrame]:
 # Main context generator
 # =============================================================================
 
-def get_stock_advisory_context(symbol: str = "IAM") -> str:
+def get_stock_advisory_context(symbol: str = "ATW") -> str:
     """
     Generate full advisory context for any stock.
 
@@ -456,7 +486,6 @@ def get_stock_advisory_context(symbol: str = "IAM") -> str:
         })
 
 
-# Backward compatibility alias
-def get_iam_stock_advisory_context() -> str:
-    """Backward-compatible wrapper — calls get_stock_advisory_context('IAM')."""
-    return get_stock_advisory_context("IAM")
+def get_atw_stock_advisory_context() -> str:
+    """Default entry point for the AI agent — runs the full pipeline for ATW."""
+    return get_stock_advisory_context("ATW")

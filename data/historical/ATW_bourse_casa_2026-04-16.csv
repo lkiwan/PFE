@@ -1,0 +1,5 @@
+﻿Séance,Instrument,Ticker,Ouverture,Dernier Cours,+haut du jour,+bas du jour,Nombre de titres échangés,Volume des échanges,Nombre de transactions,Capitalisation,scraped_at,cotation,source
+2026-04-16,ATW,ATW,703.0,703.0,705.0,700.7,34357,24152971.0,119,151244009817.0,2026-04-16T18:43:52+01:00,2026-04-16T15:38+01:00,medias24_cached_snapshot
+2026-04-16,ATW,ATW,703.0,703.0,705.0,700.7,34357,24152971.0,119,151244009817.0,2026-04-16T18:47:14+01:00,2026-04-16T15:38+01:00,medias24_cached_snapshot
+2026-04-16,ATW,ATW,703.0,703.0,705.0,700.7,34357,24152971.0,119,151244009817.0,2026-04-16T18:48:50+01:00,2026-04-16T15:38+01:00,medias24_live_snapshot
+2026-04-16,ATW,ATW,703.0,703.0,705.0,700.7,34357,24152971.0,119,151244009817.0,2026-04-16T18:57:48+01:00,2026-04-16T15:38+01:00,medias24_live_snapshot

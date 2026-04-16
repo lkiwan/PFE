@@ -1,0 +1,19 @@
+{
+  "last_snapshot_ts": "2026-04-16T18:57:48+01:00",
+  "last_snapshot_cotation": "2026-04-16T15:38+01:00",
+  "last_snapshot_last_price": 703.0,
+  "last_snapshot_open": 703.0,
+  "last_snapshot_high": 705.0,
+  "last_snapshot_low": 700.7,
+  "last_snapshot_prev_close": 703.0,
+  "last_snapshot_variation_pct": 0.0,
+  "last_snapshot_shares_traded": 34357,
+  "last_snapshot_value_traded_mad": 24152971.0,
+  "last_snapshot_num_trades": 119,
+  "last_snapshot_market_cap": 151244009817.0,
+  "finalized_days": [
+    "2026-04-15",
+    "2026-04-16"
+  ],
+  "last_snapshot_seance_date": "2026-04-15"
+}

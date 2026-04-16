@@ -1,4 +1,4 @@
-"""Morocco-specific financial constants and sector benchmarks for IAM valuation."""
+"""Morocco-specific financial constants and sector benchmarks for ATW (Attijariwafa Bank) valuation."""
 
 # --- Morocco Macro Parameters ---
 RISK_FREE_RATE = 0.035          # Bank Al-Maghrib 10-year treasury bond yield (~3.5%)
@@ -7,27 +7,32 @@ MARKET_RETURN = 0.10            # MASI historical average annual return (~8-10%)
 CORPORATE_TAX_RATE = 0.31       # Morocco standard corporate tax rate
 TERMINAL_GROWTH_RATE = 0.025    # Long-term perpetuity growth (GDP ~3%, inflation ~2%)
 
-# --- IAM-Specific Parameters ---
-IAM_BETA = 0.70                 # Defensive telecom, typically 0.6-0.8
-NUM_SHARES = 879_031_000        # Total shares outstanding (879,031 thousands)
+# --- ATW-Specific Parameters (Attijariwafa Bank) ---
+STOCK_BETA = 0.90               # Moroccan banking sector beta, typically 0.85-1.0
+NUM_SHARES = 215_140_839        # Total shares outstanding (derived from market cap / price)
+
+# Backward-compat alias so existing imports of IAM_BETA still work.
+IAM_BETA = STOCK_BETA
 
 # --- Derived: Cost of Equity (CAPM) ---
-# Cost_of_equity = Rf + Beta * ERP = 3.5% + 0.70 * 6.5% = 8.05%
-COST_OF_EQUITY = RISK_FREE_RATE + IAM_BETA * EQUITY_RISK_PREMIUM
+# Cost_of_equity = Rf + Beta * ERP = 3.5% + 0.90 * 6.5% = 9.35%
+COST_OF_EQUITY = RISK_FREE_RATE + STOCK_BETA * EQUITY_RISK_PREMIUM
 
-# --- Sector Benchmarks (Emerging Market Telecom) ---
+# --- Sector Benchmarks (Moroccan Banking Sector) ---
+# Banks use different core metrics than industrials — EV/EBITDA and margin
+# metrics below are kept as fallbacks but may not be meaningful for a bank.
 SECTOR_BENCHMARKS = {
-    "pe_ratio": 18.0,
-    "ev_ebitda": 6.5,
-    "ev_sales": 3.0,
-    "price_to_book": 3.5,
-    "dividend_yield": 4.0,       # %
-    "roe": 20.0,                 # %
-    "roa": 8.0,                  # %
-    "net_margin": 15.0,          # %
-    "ebitda_margin": 40.0,       # %
-    "operating_margin": 25.0,    # %
-    "debt_to_equity": 1.0,       # ratio
+    "pe_ratio": 13.0,            # Moroccan banking sector average
+    "ev_ebitda": 6.5,            # N/A for banks — fallback only
+    "ev_sales": 3.0,             # N/A for banks — fallback only
+    "price_to_book": 1.8,        # Key bank valuation metric
+    "dividend_yield": 4.5,       # %
+    "roe": 15.0,                 # % — typical for Moroccan banks
+    "roa": 1.2,                  # % — banks have low RoA
+    "net_margin": 25.0,          # %
+    "ebitda_margin": 40.0,       # % — fallback
+    "operating_margin": 35.0,    # %
+    "debt_to_equity": 1.0,       # ratio — banks are leveraged by nature
     "current_ratio": 1.0,        # ratio
 }
 

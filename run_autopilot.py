@@ -238,7 +238,7 @@ def _safe_print(text):
 
 def main():
     parser = argparse.ArgumentParser(description="AI Stock Autopilot")
-    parser.add_argument("--symbol", help="Stock symbol (e.g. IAM)")
+    parser.add_argument("--symbol", default="ATW", help="Stock symbol (default: ATW)")
     parser.add_argument("--all", action="store_true", help="Run for all stocks with sufficient data")
     parser.add_argument("--no-sync", action="store_true", help="Skip market data sync")
     args = parser.parse_args()

@@ -10,7 +10,7 @@ sys.path.insert(0, str(_ROOT))
 
 from agno.agent import Agent
 from agno.models.groq import Groq
-from agents.tools import get_iam_stock_advisory_context
+from agents.tools import get_atw_stock_advisory_context
 
 # Load environment variables from .env file in the project root
 load_dotenv(_ROOT / ".env")
@@ -25,10 +25,10 @@ def get_advisor_agent(model_id: str = "llama-3.3-70b-versatile") -> Agent:
     """
     agent = Agent(
         model=Groq(id=model_id),
-        tools=[get_iam_stock_advisory_context],
-        description="You are a senior quantitative Moroccan stock advisor for a hedge fund.",
+        tools=[get_atw_stock_advisory_context],
+        description="You are a senior quantitative Moroccan stock advisor for a hedge fund, specializing in Attijariwafa Bank (ATW).",
         instructions=[
-            "1. You must ALWAYS use the `get_iam_stock_advisory_context` tool to retrieve the stock's data before answering.",
+            "1. You must ALWAYS use the `get_atw_stock_advisory_context` tool to retrieve the stock's data before answering.",
             "2. Never guess or hallucinate financial numbers. Use only the data returned by the tool.",
             "3. Because you are inserting data into a strict PostgreSQL architecture, you MUST format the VERY FIRST three lines of your response exactly as follows:",
             "RECOMMENDATION: [BUY/HOLD/SELL]",
@@ -46,9 +46,9 @@ def get_advisor_agent(model_id: str = "llama-3.3-70b-versatile") -> Agent:
     return agent
 
 def main():
-    parser = argparse.ArgumentParser(description="IAM AI Advisor")
-    parser.add_argument("--test", action="store_true", help="Run a test prediction for IAM")
-    parser.add_argument("--query", type=str, default="Based on our quantitative models, what is the current advisory for Maroc Telecom (IAM)?")
+    parser = argparse.ArgumentParser(description="ATW AI Advisor")
+    parser.add_argument("--test", action="store_true", help="Run a test prediction for ATW")
+    parser.add_argument("--query", type=str, default="Based on our quantitative models, what is the current advisory for Attijariwafa Bank (ATW)?")
     args = parser.parse_args()
 
     print("🚀 Initializing Agno AI Quantitative Advisor...")

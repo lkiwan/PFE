@@ -1,0 +1,47 @@
+[
+  {
+    "scraped_at": "2026-04-16T18:57:48+01:00",
+    "market_status": "CLOSED",
+    "technicals": {
+      "as_of_date": "2026-04-16",
+      "last_close": 703.0,
+      "trend": "STRONG_DOWNTREND",
+      "moving_averages": {
+        "SMA_20": 694.5,
+        "SMA_50": 711.69,
+        "SMA_200": 734.7,
+        "EMA_12": 697.91,
+        "EMA_26": 699.45,
+        "price_vs_SMA50": "BELOW",
+        "price_vs_SMA200": "BELOW"
+      },
+      "RSI": {
+        "value": 51.52,
+        "signal": "NEUTRAL"
+      },
+      "MACD": {
+        "macd_line": -1.55,
+        "signal_line": -4.51,
+        "histogram": 2.96,
+        "signal": "BULLISH"
+      },
+      "bollinger_bands": {
+        "upper": 716.39,
+        "middle": 694.5,
+        "lower": 672.62,
+        "signal": "NEUTRAL"
+      },
+      "stochastic": {
+        "K": 77.78,
+        "D": 72.59,
+        "signal": "NEUTRAL"
+      },
+      "ATR_14": 11.84,
+      "VWAP_20d": 696.61,
+      "support_resistance": {
+        "support_20d": 675.0,
+        "resistance_20d": 714.9
+      }
+    }
+  }
+]

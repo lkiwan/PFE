@@ -1,9 +1,9 @@
 {
   "symbol": "ATW",
   "scrape_timestamp": "2026-04-13T10:48:04.729374+00:00",
-  "price": 711.0,
-  "market_cap": 152965136529.0,
-  "volume": 23712756,
+  "price": 700.2,
+  "market_cap": 150641615467.8,
+  "volume": 72531964,
   "high_52w": 804.0,
   "low_52w": 625.2,
   "pe_ratio": 14.8,
@@ -130,6 +130,6 @@
   "data_source": {
     "v3_scraper": true,
     "bourse_casa": true,
-    "merged_at": "2026-04-13T13:08:26.271807+00:00"
+    "merged_at": "2026-04-14T18:15:21.110239+00:00"
   }
 }

@@ -1,4 +1,6 @@
 """
+python testing/run_scraper.py --all --start-from JET
+
 Unified News Scraper for MarketScreener
 ========================================
 Fetches news articles from MarketScreener for Casablanca stocks.

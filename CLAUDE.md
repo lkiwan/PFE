@@ -2,8 +2,14 @@
 
 ## Project Overview
 
-PFE Trading System for IAM (Itissalat Al-Maghrib / Maroc Telecom) on the Casablanca Stock Exchange.
+PFE Trading System for **ATW (Attijariwafa Bank)** on the Casablanca Stock Exchange.
 Quantitative stock advisory system combining: web scraping, 5 valuation models, multi-factor scoring, whale detection, backtesting, and AI-powered advisory (Agno + Groq LLM) with PostgreSQL storage.
+
+> **Pivot 2026-04-14**: Project was originally built around IAM (Maroc Telecom). The IAM version is preserved on branch `v1-iam-archive` (both local and origin). `main` is now the ATW timeline. See `C:\Users\arhou\.claude\plans\smooth-forging-moth.md` for pivot rationale.
+>
+> - Default ticker everywhere is now **ATW**.
+> - Sector benchmarks in `utils/financial_constants.py` reworked for Moroccan banking. Some industrial metrics (EV/EBITDA, EBITDA margin) are kept as fallbacks but aren't meaningful for a bank — further scoring/model tuning for banking is a known follow-up.
+> - News collection switched from MarketScreener per-stock pages to a free RSS-based scraper (`scrapers/atw_news_scraper.py`) that queries Google News with `"Attijariwafa bank" -site:attijariwafa.com` plus Moroccan financial feeds (Le Matin, L'Économiste, Medias24). Output: `data/historical/ATW_news.csv`.
 
 ## Architecture Summary
 
