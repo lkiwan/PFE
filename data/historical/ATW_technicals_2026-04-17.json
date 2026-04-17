@@ -1,0 +1,92 @@
+[
+  {
+    "scraped_at": "2026-04-17T13:47:54+01:00",
+    "market_status": "OPEN",
+    "technicals": {
+      "as_of_date": "2026-04-17",
+      "last_close": 704.0,
+      "trend": "STRONG_DOWNTREND",
+      "moving_averages": {
+        "SMA_20": 694.1,
+        "SMA_50": 711.25,
+        "SMA_200": 734.81,
+        "EMA_12": 699.15,
+        "EMA_26": 699.97,
+        "price_vs_SMA50": "BELOW",
+        "price_vs_SMA200": "BELOW"
+      },
+      "RSI": {
+        "value": 51.89,
+        "signal": "NEUTRAL"
+      },
+      "MACD": {
+        "macd_line": -0.82,
+        "signal_line": -3.71,
+        "histogram": 2.9,
+        "signal": "BULLISH"
+      },
+      "bollinger_bands": {
+        "upper": 714.54,
+        "middle": 694.1,
+        "lower": 673.66,
+        "signal": "NEUTRAL"
+      },
+      "stochastic": {
+        "K": 80.56,
+        "D": 78.7,
+        "signal": "OVERBOUGHT"
+      },
+      "ATR_14": 11.31,
+      "VWAP_20d": 696.09,
+      "support_resistance": {
+        "support_20d": 675.0,
+        "resistance_20d": 711.0
+      }
+    }
+  },
+  {
+    "scraped_at": "2026-04-17T13:51:00+01:00",
+    "market_status": "OPEN",
+    "technicals": {
+      "as_of_date": "2026-04-17",
+      "last_close": 704.0,
+      "trend": "STRONG_DOWNTREND",
+      "moving_averages": {
+        "SMA_20": 694.1,
+        "SMA_50": 711.25,
+        "SMA_200": 734.81,
+        "EMA_12": 699.15,
+        "EMA_26": 699.97,
+        "price_vs_SMA50": "BELOW",
+        "price_vs_SMA200": "BELOW"
+      },
+      "RSI": {
+        "value": 51.89,
+        "signal": "NEUTRAL"
+      },
+      "MACD": {
+        "macd_line": -0.82,
+        "signal_line": -3.71,
+        "histogram": 2.9,
+        "signal": "BULLISH"
+      },
+      "bollinger_bands": {
+        "upper": 714.54,
+        "middle": 694.1,
+        "lower": 673.66,
+        "signal": "NEUTRAL"
+      },
+      "stochastic": {
+        "K": 80.56,
+        "D": 78.7,
+        "signal": "OVERBOUGHT"
+      },
+      "ATR_14": 11.31,
+      "VWAP_20d": 696.09,
+      "support_resistance": {
+        "support_20d": 675.0,
+        "resistance_20d": 711.0
+      }
+    }
+  }
+]

@@ -753,56 +753,6 @@ def scrape_ir_attijariwafa() -> list[dict]:
     return items
 
 
-def scrape_medias24_topic(known_url_keys: Optional[set[str]] = None) -> list[dict]:
-    """Medias24 ATW topic hub — the main column is ATW, but the page also
-    renders sitewide sidebar/recommended links. We filter on title mention of
-    ATW to drop the non-topic stragglers (URL slug contains "attijariwafa"
-    for real topic articles, but we rely on title too for robustness).
-    """
-    url = "https://medias24.com/sujet/attijariwafa-bank/"
-    logger.info("Direct scrape: Medias24 topic (%s)", url)
-    html = _fetch(url)
-    if not html:
-        return []
-    soup = BeautifulSoup(html, "html.parser")
-    items = []
-    seen: set[str] = set()
-    # Article URLs follow medias24.com/YYYY/MM/DD/<slug>
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if "medias24.com/" not in href:
-            continue
-        if not re.search(r"medias24\.com/\d{4}/\d{2}/\d{2}/", href):
-            continue
-        title = a.get_text(" ", strip=True)
-        if not title or len(title) < 15:
-            continue
-        if href in seen:
-            continue
-        seen.add(href)
-        # Drop sitewide sidebar links that don't actually mention ATW.
-        slug_has_atw = "attijariwafa" in href.lower() or "/atw-" in href.lower()
-        if not (slug_has_atw or _mentions_atw(title, "")):
-            continue
-        if known_url_keys is not None and not items:
-            if _url_key(href) in known_url_keys:
-                logger.info("  -> source unchanged (top item known), skipped")
-                return []
-        m = re.search(r"/(\d{4})/(\d{2})/(\d{2})/", href)
-        date_iso = f"{m.group(1)}-{m.group(2)}-{m.group(3)}" if m else ""
-        items.append({
-            "date": date_iso,
-            "title": title,
-            "source": "Medias24",
-            "url": href,
-            "snippet": "",
-            "full_content": "",
-            "query_source": "direct:medias24_topic",
-        })
-    logger.info("  -> %d items", len(items))
-    return items
-
-
 def scrape_boursenews_stock(known_url_keys: Optional[set[str]] = None) -> list[dict]:
     """Boursenews dedicated ATW action page — earnings, broker notes, ratings."""
     url = "https://boursenews.ma/action/attijariwafa-bank"
@@ -886,62 +836,80 @@ def scrape_leconomiste_search(known_url_keys: Optional[set[str]] = None) -> list
     return items
 
 
-def scrape_aujourdhui_search(max_pages: int = 10, known_url_keys: Optional[set[str]] = None) -> list[dict]:
-    """Aujourd'hui le Maroc WordPress search — Attijariwafa bank articles.
+def scrape_aujourdhui_search(max_pages: int = 1, known_url_keys: Optional[set[str]] = None) -> list[dict]:
+    """Aujourd'hui le Maroc — Attijariwafa bank articles via WordPress REST.
 
-    Paginates through /page/N?s=Attijariwafa%20bank until a page returns
-    zero new items (or max_pages hit). Each result has the title in a link
-    and the French date nearby ("26 février 2026").
+    The HTML search page became Cloudflare-protected (2026-04). The site's
+    WP REST endpoint `/wp-json/wp/v2/posts?search=...` is not CF-gated and
+    returns structured JSON with title/date/link/excerpt/full content.
+
+    Pagination follows the WP REST convention: `page=N&per_page=100`. We stop
+    when a page returns fewer than per_page results, when max_pages is hit,
+    or early when the first item is already known.
     """
-    base = "https://aujourdhui.ma/page/{page}?s=Attijariwafa%20bank"
-    logger.info("Direct scrape: Aujourd'hui search (up to %d pages)", max_pages)
-    items = []
+    endpoint = "https://aujourdhui.ma/wp-json/wp/v2/posts"
+    per_page = 100
+    logger.info("Direct scrape: Aujourd'hui WP REST (up to %d pages)", max_pages)
+    items: list[dict] = []
     seen: set[str] = set()
     for page in range(1, max_pages + 1):
-        url = base.format(page=page)
-        html = _fetch(url, timeout=45, retries=2)
-        if not html:
+        url = (
+            f"{endpoint}?search=Attijariwafa+bank"
+            f"&per_page={per_page}&page={page}&orderby=date&order=desc"
+        )
+        try:
+            resp = requests.get(
+                url,
+                headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+                timeout=45,
+            )
+            if resp.status_code == 400:  # WP returns 400 when page > last page
+                break
+            if resp.status_code != 200:
+                logger.warning("HTTP %s for %s", resp.status_code, url)
+                break
+            posts = resp.json()
+        except (requests.RequestException, ValueError) as exc:
+            logger.warning("Aujourd'hui REST fetch failed: %s", exc)
             break
-        soup = BeautifulSoup(html, "html.parser")
+        if not isinstance(posts, list) or not posts:
+            break
         page_new = 0
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            if "aujourdhui.ma" not in href:
+        for post in posts:
+            link = (post.get("link") or "").strip()
+            title_html = (post.get("title") or {}).get("rendered", "") or ""
+            title = BeautifulSoup(title_html, "html.parser").get_text(" ", strip=True)
+            if not link or not title:
                 continue
-            if any(seg in href for seg in ("?s=", "/tag/", "/category/", "/author/", "/page/")):
+            if link in seen:
                 continue
-            title = a.get_text(" ", strip=True)
-            if not title or len(title) < 20:
+            seen.add(link)
+            excerpt_html = (post.get("excerpt") or {}).get("rendered", "") or ""
+            content_html = (post.get("content") or {}).get("rendered", "") or ""
+            excerpt = BeautifulSoup(excerpt_html, "html.parser").get_text(" ", strip=True)
+            full_content = BeautifulSoup(content_html, "html.parser").get_text(" ", strip=True)
+            if not _mentions_atw(title, excerpt) and not _mentions_atw(title, full_content[:2000]):
                 continue
-            if not _mentions_atw(title, ""):
-                continue
-            if href in seen:
-                continue
-            seen.add(href)
             if known_url_keys is not None and page_new == 0:
-                if _url_key(href) in known_url_keys:
+                if _url_key(link) in known_url_keys:
                     if page == 1:
                         logger.info("  -> source unchanged (top item known), skipped")
                         return []
-                    else:
-                        logger.info("  page %d: top item known, stopping pagination", page)
-                        return items
-            date_str = ""
-            parent = a.find_parent(["article", "div", "li"])
-            if parent:
-                date_str = _parse_french_date(parent.get_text(" ", strip=True))
+                    logger.info("  page %d: top item known, stopping pagination", page)
+                    return items
+            date_raw = post.get("date_gmt") or post.get("date") or ""
             items.append({
-                "date": date_str,
+                "date": _parse_date(date_raw),
                 "title": title,
                 "source": "Aujourd'hui",
-                "url": href,
-                "snippet": "",
-                "full_content": "",
+                "url": link,
+                "snippet": excerpt,
+                "full_content": full_content,
                 "query_source": "direct:aujourdhui_search",
             })
             page_new += 1
-        logger.info("  page %d: %d new items", page, page_new)
-        if page_new == 0:
+        logger.info("  page %d: %d new items (of %d returned)", page, page_new, len(posts))
+        if len(posts) < per_page:
             break
         time.sleep(POLITE_DELAY)
     logger.info("  -> %d items total", len(items))
@@ -1504,8 +1472,6 @@ def run(
 
     # High-signal direct sources first — these are ATW-specific hubs.
     # IR Attijariwafa and Attijari CIB removed: article pages don't expose dates.
-    all_items.extend(scrape_medias24_topic(known_url_keys=known_keys))
-    time.sleep(POLITE_DELAY)
     all_items.extend(scrape_medias24_wp_posts(known_url_keys=known_keys))
     time.sleep(POLITE_DELAY)
     all_items.extend(scrape_boursenews_stock(known_url_keys=known_keys))
